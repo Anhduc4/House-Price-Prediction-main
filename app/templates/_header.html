@@ -1,0 +1,118 @@
+<!-- ====== SHARED HEADER ====== -->
+<header class="site-header">
+    <div class="header-inner">
+        <a href="/" class="header-brand">
+            <span class="brand-icon">🏠</span>
+            <span class="header-brand-text">Prophet<span class="brand-accent">Estate</span></span>
+        </a>
+
+        <nav class="header-nav">
+            <a href="/" class="header-nav-link">Định giá AI</a>
+            <a href="/search" class="header-nav-link">Tìm kiếm BĐS</a>
+            <a href="/analytics" class="header-nav-link">Phân tích dữ liệu</a>
+            <a href="/news" class="header-nav-link">Tin tức thị trường</a>
+            <a href="/about" class="header-nav-link">Về chúng tôi</a>
+        </nav>
+
+        <div class="header-actions" id="header-auth">
+            {% if user %}
+                <span class="header-user">Xin chào, <strong>{{ user.name }}</strong></span>
+                <a href="/logout" class="hdr-btn">Đăng xuất</a>
+            {% else %}
+                <button class="hdr-btn" onclick="openAuthModal('login')">Đăng nhập</button>
+                <button class="hdr-btn primary" onclick="openAuthModal('register')">Đăng ký</button>
+            {% endif %}
+        </div>
+    </div>
+</header>
+
+<style>
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+}
+.header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    height: 62px;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+.brand-icon { font-size: 1.4rem; }
+.header-brand-text {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    color: var(--text-light);
+    font-weight: 600;
+}
+.brand-accent { color: var(--accent-gold); }
+
+.header-nav {
+    display: flex;
+    gap: 0.25rem;
+    flex: 1;
+}
+.header-nav-link {
+    text-decoration: none;
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+.header-nav-link:hover {
+    background: var(--bg-dark);
+    color: var(--text-light);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-shrink: 0;
+}
+.header-user {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+}
+.hdr-btn {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 7px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-light);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.2s;
+}
+.hdr-btn.primary {
+    background: var(--accent-gold);
+    color: #fff;
+    border-color: var(--accent-gold);
+}
+.hdr-btn:hover { opacity: 0.85; }
+
+@media (max-width: 700px) {
+    .header-nav { display: none; }
+    .header-inner { padding: 0 1rem; }
+}
+</style>

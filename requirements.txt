@@ -1,0 +1,19 @@
+# Data manipulation & ML
+pandas>=2.0
+numpy>=1.24
+scikit-learn>=1.4
+xgboost>=2.0
+
+# Web Scraping
+curl_cffi>=0.7
+beautifulsoup4>=4.12
+
+# Web Framework (Backend)
+Flask>=3.0
+Flask-Cors>=4.0
+
+# Jupyter & Plotting
+jupyter
+matplotlib>=3.8
+seaborn>=0.13
+scipy>=1.13

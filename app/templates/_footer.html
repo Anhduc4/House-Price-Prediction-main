@@ -1,0 +1,485 @@
+<!-- ====== SHARED FOOTER ====== -->
+<footer class="site-footer">
+    <div class="footer-inner">
+        <div class="footer-col footer-brand-col">
+            <div class="footer-brand">
+                <span>🏠</span>
+                <span class="footer-brand-name">Prophet<span style="color:var(--accent-gold)">Estate</span></span>
+            </div>
+            <p class="footer-tagline">Nền tảng định giá bất động sản thông minh bằng AI — dành riêng cho thị trường Việt Nam.</p>
+            <div class="footer-contact-row">
+                <span>📞 1900 2222</span>
+                <span>✉️ contact@prophetestate.vn</span>
+            </div>
+        </div>
+
+        <div class="footer-col">
+            <h4 class="footer-col-title">Dịch vụ</h4>
+            <ul class="footer-links">
+                <li><a href="/">Định giá AI</a></li>
+                <li><a href="/search">Tìm kiếm BĐS</a></li>
+                <li><a href="/news">Tin tức thị trường</a></li>
+                <li><a href="/analytics">Phân tích dữ liệu</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-col">
+            <h4 class="footer-col-title">Hỗ trợ</h4>
+            <ul class="footer-links">
+                <li><a href="/about">Về chúng tôi</a></li>
+                <li><a href="#" onclick="openSupportModal('faq'); return false;">Câu hỏi thường gặp</a></li>
+                <li><a href="#" onclick="openSupportModal('privacy'); return false;">Chính sách bảo mật</a></li>
+                <li><a href="#" onclick="openSupportModal('terms'); return false;">Điều khoản sử dụng</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-col">
+            <h4 class="footer-col-title">Khu vực</h4>
+            <ul class="footer-links">
+                <li><a href="#">BĐS Hà Nội</a></li>
+                <li><a href="#">BĐS TP. Hồ Chí Minh</a></li>
+                <li><a href="#">BĐS Đà Nẵng</a></li>
+                <li><a href="#">BĐS tỉnh thành khác</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <div class="footer-bottom-inner">
+            <p>© 2024 ProphetEstate. Dữ liệu tham khảo từ <a href="https://batdongsan.com.vn" target="_blank">batdongsan.com.vn</a>. Giá do AI dự đoán chỉ mang tính chất tham khảo.</p>
+            <div class="footer-socials">
+                <a href="#" title="Facebook">𝒇</a>
+                <a href="#" title="YouTube">▶</a>
+                <a href="#" title="Zalo">Ⓩ</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<style>
+.site-footer {
+    background: var(--text-light);
+    color: rgba(255,255,255,0.75);
+    margin-top: 4rem;
+    font-family: var(--font-body);
+}
+.footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 3rem 2rem 2rem;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 2.5rem;
+}
+.footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    color: #fff;
+    margin-bottom: 0.8rem;
+}
+.footer-brand-name { font-weight: 600; }
+.footer-tagline {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 1rem;
+}
+.footer-contact-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.6);
+}
+.footer-col-title {
+    color: #fff;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 1rem;
+}
+.footer-links {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.footer-links a {
+    color: rgba(255,255,255,0.55);
+    text-decoration: none;
+    font-size: 0.88rem;
+    transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--accent-gold); }
+
+.footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+.footer-bottom-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.2rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.4);
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+.footer-bottom-inner a { color: var(--accent-gold); text-decoration: none; }
+.footer-socials { display: flex; gap: 1rem; }
+.footer-socials a {
+    color: rgba(255,255,255,0.5);
+    font-size: 1.1rem;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+.footer-socials a:hover { color: var(--accent-gold); }
+
+/* ── AUTH MODAL (Premium redesign) ── */
+.auth-modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.65); z-index: 9998;
+    justify-content: center; align-items: center;
+    backdrop-filter: blur(6px);
+}
+.auth-modal-overlay.active { display: flex; }
+.auth-modal-box {
+    background: var(--bg-panel); border: 1px solid var(--border-color);
+    border-radius: 20px; padding: 2.5rem 2.25rem;
+    width: 440px; max-width: 95vw; position: relative;
+    animation: modalIn 0.28s cubic-bezier(0.34,1.56,0.64,1);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+}
+@keyframes modalIn {
+    from { opacity: 0; transform: translateY(-24px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.auth-modal-close {
+    position: absolute; top: 1rem; right: 1rem;
+    background: var(--bg-dark); border: 1px solid var(--border-color);
+    width: 28px; height: 28px; border-radius: 50%; font-size: 1rem;
+    cursor: pointer; color: var(--text-muted);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+}
+.auth-modal-close:hover { background: var(--accent-gold); color: #fff; border-color: var(--accent-gold); }
+.auth-brand {
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--font-display); font-size: 1.1rem; margin-bottom: 1.4rem;
+}
+.auth-brand span.g { color: var(--accent-gold); }
+.auth-modal-title { font-family: var(--font-display); font-size: 1.75rem; font-weight: 600; margin-bottom: 0.25rem; color: var(--text-light); }
+.auth-modal-sub { font-size: 0.87rem; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.5; }
+.btn-google {
+    width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+    background: #fff; color: #3c4043; border: 1px solid #dadce0;
+    border-radius: 10px; padding: 11px 16px; font-size: 0.92rem; font-weight: 500;
+    font-family: var(--font-body); cursor: pointer; text-decoration: none;
+    transition: box-shadow 0.2s, background 0.2s; margin-bottom: 1.25rem;
+}
+.btn-google:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.2); background: #f8f9fa; }
+.btn-google.disabled { opacity: 0.4; pointer-events: none; }
+.btn-google svg { width: 18px; height: 18px; flex-shrink: 0; }
+.auth-divider {
+    display: flex; align-items: center; gap: 0.75rem;
+    margin-bottom: 1.25rem; color: var(--text-muted); font-size: 0.8rem;
+}
+.auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border-color); }
+.auth-field { margin-bottom: 0.9rem; }
+.auth-field label { display: block; font-size: 0.77rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.3rem; }
+.auth-field input {
+    width: 100%; border: 1px solid var(--border-color); border-radius: 9px; padding: 11px 14px;
+    font-family: var(--font-body); font-size: 0.92rem;
+    color: var(--text-light); background: var(--bg-dark); outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.auth-field input:focus { border-color: var(--accent-gold); box-shadow: 0 0 0 3px rgba(192,160,98,0.12); }
+.auth-submit {
+    width: 100%; background: var(--accent-gold); color: #fff; border: none;
+    border-radius: 10px; padding: 13px; font-size: 0.95rem; font-weight: 700;
+    font-family: var(--font-display); cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s; margin-top: 0.5rem;
+}
+.auth-submit:hover:not(:disabled) { opacity: 0.87; transform: translateY(-1px); }
+.auth-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+.auth-modal-error { color: #fc8181; font-size: 0.83rem; margin-bottom: 0.6rem; min-height: 18px; }
+.auth-switch { text-align: center; margin-top: 1rem; font-size: 0.87rem; color: var(--text-muted); }
+.auth-switch a { color: var(--accent-gold); cursor: pointer; font-weight: 500; }
+.auth-terms { text-align: center; font-size: 0.73rem; color: var(--text-muted); margin-top: 0.75rem; }
+.auth-terms a { color: var(--accent-gold); }
+.google-warn { background: rgba(192,160,98,0.08); border: 1px solid rgba(192,160,98,0.2); border-radius: 8px; padding: 7px 12px; font-size: 0.76rem; color: var(--text-muted); margin-bottom: 1rem; text-align: center; display: none; }
+.support-modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 9997;
+    background: rgba(0,0,0,0.62); backdrop-filter: blur(5px);
+    align-items: center; justify-content: center; padding: 1rem;
+}
+.support-modal-overlay.active { display: flex; }
+.support-modal-box {
+    width: min(620px, 96vw); max-height: 82vh; overflow: auto;
+    background: #fff; color: #1f2933; border-radius: 16px;
+    box-shadow: 0 24px 70px rgba(0,0,0,0.35); padding: 2rem;
+    position: relative;
+}
+.support-modal-close {
+    position: absolute; top: 1rem; right: 1rem;
+    width: 30px; height: 30px; border-radius: 50%; border: 1px solid #d8dee6;
+    background: #f8fafc; color: #4b5563; cursor: pointer;
+}
+.support-modal-box h2 {
+    font-family: var(--font-display); font-size: 1.7rem; margin: 0 2rem 1rem 0;
+}
+.support-modal-box h3 { font-size: 1rem; margin: 1.2rem 0 0.35rem; color: #1f2933; }
+.support-modal-box p, .support-modal-box li { color: #4b5563; line-height: 1.65; font-size: 0.94rem; }
+.support-modal-box ul { padding-left: 1.2rem; margin: 0.5rem 0 0; }
+
+@media (max-width: 800px) { .footer-inner { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 500px) { .footer-inner { grid-template-columns: 1fr; } }
+</style>
+
+<!-- GLOBAL AUTH MODAL -->
+<div class="auth-modal-overlay" id="global-auth-modal">
+    <div class="auth-modal-box">
+        <button class="auth-modal-close" onclick="closeAuthModal()">×</button>
+
+        <div id="gform-login">
+            <!-- Login form body -->
+            <div class="auth-brand">🏠 <strong>Prophet<span class="g">Estate</span></strong></div>
+            <h2 class="auth-modal-title">Đăng nhập</h2>
+            <p class="auth-modal-sub">Chào mừng trở lại! Đăng nhập để xem liên hệ và lưu kết quả định giá.</p>
+            <a href="/auth/google" id="btn-gg-login" class="btn-google">
+                <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+                Tiếp tục với Google
+            </a>
+            <div class="google-warn" id="gw-login">⚠ Google OAuth chưa được cấu hình trên server này.</div>
+            <div class="auth-divider">hoặc đăng nhập bằng email</div>
+            <p class="auth-modal-error" id="g-login-error"></p>
+            <div class="auth-field"><label>Email</label><input type="email" id="g-login-email" placeholder="your@email.com" autocomplete="email"></div>
+            <div class="auth-field"><label>Mật khẩu</label><input type="password" id="g-login-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doGlobalLogin()"></div>
+            <button class="auth-submit" id="btn-login-submit" onclick="doGlobalLogin()">Đăng nhập →</button>
+            <p class="auth-switch">Chưa có tài khoản? <a onclick="switchAuthForm('register')">Tạo tài khoản miễn phí</a></p>
+            <p class="auth-terms">Bằng cách đăng nhập bạn đồng ý với <a href="#">Điều khoản</a> &amp; <a href="#">Bảo mật</a>.</p>
+        </div>
+
+        <div id="gform-register" style="display:none">
+            <div class="auth-brand">🏠 <strong>Prophet<span class="g">Estate</span></strong></div>
+            <h2 class="auth-modal-title">Tạo tài khoản</h2>
+            <p class="auth-modal-sub">Đăng ký miễn phí để truy cập đầy đủ thông tin liên hệ và lưu lịch sử.</p>
+            <a href="/auth/google" id="btn-gg-reg" class="btn-google">
+                <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+                Đăng ký với Google
+            </a>
+            <div class="google-warn" id="gw-reg">⚠ Google OAuth chưa được cấu hình trên server này.</div>
+            <div class="auth-divider">hoặc đăng ký bằng email</div>
+            <p class="auth-modal-error" id="g-reg-error"></p>
+            <div class="auth-field"><label>Họ và tên</label><input type="text" id="g-reg-name" placeholder="Nguyễn Văn A" autocomplete="name"></div>
+            <div class="auth-field"><label>Email</label><input type="email" id="g-reg-email" placeholder="your@email.com" autocomplete="email"></div>
+            <div class="auth-field"><label>Mật khẩu (≥ 6 ký tự)</label><input type="password" id="g-reg-pass" placeholder="••••••••" autocomplete="new-password" onkeydown="if(event.key==='Enter')doGlobalRegister()"></div>
+            <button class="auth-submit" id="btn-reg-submit" onclick="doGlobalRegister()">Tạo tài khoản →</button>
+            <p class="auth-switch">Đã có tài khoản? <a onclick="switchAuthForm('login')">Đăng nhập</a></p>
+            <p class="auth-terms">Bằng cách đăng ký bạn đồng ý với <a href="#">Điều khoản</a> &amp; <a href="#">Bảo mật</a>.</p>
+        </div>
+    </div>
+</div>
+
+<div class="support-modal-overlay" id="support-modal">
+    <div class="support-modal-box">
+        <button class="support-modal-close" onclick="closeSupportModal()">×</button>
+        <div id="support-modal-content"></div>
+    </div>
+</div>
+
+<script>
+const supportContent = {
+    faq: `
+        <h2>Câu hỏi thường gặp</h2>
+        <h3>Kết quả định giá có chính xác tuyệt đối không?</h3>
+        <p>Kết quả là ước tính tham khảo từ dữ liệu và mô hình học máy, không thay thế thẩm định thực tế.</p>
+        <h3>Tôi cần nhập những thông tin nào?</h3>
+        <p>Diện tích, số phòng ngủ, quận/huyện, hướng, pháp lý và nội thất. Với nhà đất cần thêm số tầng, mặt tiền và đường vào.</p>
+        <h3>Tại sao không thấy căn tương tự?</h3>
+        <p>Hệ thống chỉ gợi ý khi dữ liệu có bất động sản nằm gần mức giá dự đoán.</p>
+    `,
+    privacy: `
+        <h2>Chính sách bảo mật</h2>
+        <p>ProphetEstate tôn trọng quyền riêng tư của người dùng và chỉ thu thập những dữ liệu cần thiết để vận hành hệ thống định giá, tìm kiếm bất động sản và đăng nhập tài khoản.</p>
+        <h3>Thông tin được xử lý</h3>
+        <p>Hệ thống có thể xử lý email, tên hiển thị, ảnh đại diện Google, thông tin đăng nhập và các thông số bất động sản bạn nhập như diện tích, vị trí, pháp lý, nội thất.</p>
+        <h3>Mục đích sử dụng</h3>
+        <ul>
+            <li>Xác thực phiên đăng nhập và hiển thị trạng thái tài khoản.</li>
+            <li>Thực hiện dự đoán giá và gợi ý bất động sản tương tự.</li>
+            <li>Cải thiện trải nghiệm tìm kiếm, phân tích và hiển thị dữ liệu.</li>
+            <li>Không bán hoặc chia sẻ dữ liệu cá nhân cho bên thứ ba vì mục đích quảng cáo.</li>
+        </ul>
+        <h3>Bảo vệ dữ liệu</h3>
+        <p>Mật khẩu đăng ký bằng email được lưu dưới dạng băm. Thông tin Google chỉ dùng để xác thực người dùng và tạo phiên đăng nhập trong ứng dụng demo.</p>
+        <h3>Lưu ý</h3>
+        <p>Dự án hiện dùng bộ nhớ tạm cho tài khoản demo, nên dữ liệu đăng ký có thể mất khi server khởi động lại.</p>
+    `,
+    terms: `
+        <h2>Điều khoản sử dụng</h2>
+        <p>Khi sử dụng ProphetEstate, bạn đồng ý với các điều khoản dưới đây. Ứng dụng được xây dựng phục vụ học tập, nghiên cứu và tham khảo thị trường bất động sản.</p>
+        <h3>Phạm vi dịch vụ</h3>
+        <p>Hệ thống cung cấp công cụ ước tính giá bằng mô hình học máy, tìm kiếm dữ liệu bất động sản, phân tích thống kê và hiển thị thông tin tham khảo.</p>
+        <h3>Giới hạn trách nhiệm</h3>
+        <ul>
+            <li>Kết quả dự đoán không phải cam kết giá mua bán, báo giá chính thức hoặc chứng thư thẩm định.</li>
+            <li>Người dùng cần tự kiểm tra pháp lý, quy hoạch, hiện trạng và giá giao dịch thực tế trước khi ra quyết định.</li>
+            <li>Dữ liệu thị trường có thể sai lệch, thiếu cập nhật hoặc thay đổi theo thời gian.</li>
+            <li>ProphetEstate không chịu trách nhiệm cho thiệt hại phát sinh nếu người dùng dùng kết quả như căn cứ duy nhất để giao dịch.</li>
+        </ul>
+        <h3>Hành vi không được phép</h3>
+        <p>Không tấn công hệ thống, gửi dữ liệu giả nhằm phá hoại mô hình, khai thác trái phép dữ liệu hoặc sử dụng giao diện cho mục đích vi phạm pháp luật.</p>
+    `
+};
+
+function openSupportModal(type) {
+    const modal = document.getElementById('support-modal');
+    document.getElementById('support-modal-content').innerHTML = supportContent[type] || supportContent.faq;
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeSupportModal() {
+    document.getElementById('support-modal').classList.remove('active');
+    if (!document.getElementById('global-auth-modal').classList.contains('active')) {
+        document.body.style.overflow = '';
+    }
+}
+
+document.getElementById('support-modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('support-modal')) closeSupportModal();
+});
+
+function openAuthModal(form) {
+    document.getElementById('global-auth-modal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    switchAuthForm(form || 'login');
+    checkGoogleCfg();
+}
+function closeAuthModal() {
+    document.getElementById('global-auth-modal').classList.remove('active');
+    document.body.style.overflow = '';
+}
+function switchAuthForm(form) {
+    document.getElementById('gform-login').style.display    = form === 'login'    ? '' : 'none';
+    document.getElementById('gform-register').style.display = form === 'register' ? '' : 'none';
+}
+document.getElementById('global-auth-modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('global-auth-modal')) closeAuthModal();
+});
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+        closeSupportModal();
+        closeAuthModal();
+    }
+});
+
+async function checkGoogleCfg() {
+    try {
+        const r = await fetch('/api/auth/status');
+        const d = await r.json();
+        if (!d.google_configured) {
+            ['gw-login','gw-reg'].forEach(id => document.getElementById(id).style.display = 'block');
+            ['btn-gg-login','btn-gg-reg'].forEach(id => document.getElementById(id).classList.add('disabled'));
+            return;
+        }
+        ['gw-login','gw-reg'].forEach(id => document.getElementById(id).style.display = 'none');
+        ['btn-gg-login','btn-gg-reg'].forEach(id => document.getElementById(id).classList.remove('disabled'));
+    } catch(e) {}
+}
+
+function renderGoogleButtons(clientId) {
+    if (!clientId) return;
+    if (!window.google || !google.accounts || !google.accounts.id) {
+        setTimeout(() => renderGoogleButtons(clientId), 300);
+        return;
+    }
+    google.accounts.id.initialize({
+        client_id: clientId,
+        callback: handleGoogleCredential
+    });
+    ['btn-gg-login','btn-gg-reg'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el || el.dataset.rendered === '1') return;
+        el.innerHTML = '';
+        google.accounts.id.renderButton(el, {
+            theme: 'outline',
+            size: 'large',
+            width: Math.min(360, el.clientWidth || 360),
+            text: id === 'btn-gg-reg' ? 'signup_with' : 'continue_with'
+        });
+        el.dataset.rendered = '1';
+    });
+}
+
+async function handleGoogleCredential(response) {
+    const errLogin = document.getElementById('g-login-error');
+    const errReg = document.getElementById('g-reg-error');
+    if (errLogin) errLogin.textContent = '';
+    if (errReg) errReg.textContent = '';
+    try {
+        const res = await fetch('/auth/google/token', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({credential: response.credential})
+        });
+        const data = await res.json();
+        if (data.success) {
+            closeAuthModal();
+            location.reload();
+        } else {
+            const msg = '⚠ ' + (data.error || 'Không thể đăng nhập Google.');
+            if (errLogin) errLogin.textContent = msg;
+            if (errReg) errReg.textContent = msg;
+        }
+    } catch(e) {
+        const msg = '⚠ Không thể kết nối tới server.';
+        if (errLogin) errLogin.textContent = msg;
+        if (errReg) errReg.textContent = msg;
+    }
+}
+
+async function doGlobalLogin() {
+    const email = document.getElementById('g-login-email').value.trim();
+    const pass  = document.getElementById('g-login-pass').value;
+    const errEl = document.getElementById('g-login-error');
+    const btn   = document.getElementById('btn-login-submit');
+    errEl.textContent = '';
+    if (!email || !pass) { errEl.textContent = '⚠ Vui lòng nhập email và mật khẩu.'; return; }
+    btn.textContent = 'Đang đăng nhập...'; btn.disabled = true;
+    const res  = await fetch('/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email, password:pass}) });
+    const data = await res.json();
+    btn.textContent = 'Đăng nhập →'; btn.disabled = false;
+    if (data.success) { closeAuthModal(); location.reload(); }
+    else { errEl.textContent = '⚠ ' + data.error; }
+}
+
+async function doGlobalRegister() {
+    const name  = document.getElementById('g-reg-name').value.trim();
+    const email = document.getElementById('g-reg-email').value.trim();
+    const pass  = document.getElementById('g-reg-pass').value;
+    const errEl = document.getElementById('g-reg-error');
+    const btn   = document.getElementById('btn-reg-submit');
+    errEl.textContent = '';
+    if (!name||!email||!pass) { errEl.textContent = '⚠ Vui lòng nhập đầy đủ thông tin.'; return; }
+    if (pass.length < 6) { errEl.textContent = '⚠ Mật khẩu tối thiểu 6 ký tự.'; return; }
+    btn.textContent = 'Đang tạo tài khoản...'; btn.disabled = true;
+    const res  = await fetch('/register', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, email, password:pass}) });
+    const data = await res.json();
+    btn.textContent = 'Tạo tài khoản →'; btn.disabled = false;
+    if (data.success) { closeAuthModal(); location.reload(); }
+    else { errEl.textContent = '⚠ ' + data.error; }
+}
+
+(function() {
+    if (new URLSearchParams(location.search).get('auth_error'))
+        setTimeout(() => openAuthModal('login'), 400);
+})();
+</script>

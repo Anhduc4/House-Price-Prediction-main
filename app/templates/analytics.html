@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phân tích dữ liệu BĐS | Prophet Estate</title>
+    <meta name="description" content="Phân tích chi tiết dữ liệu thị trường bất động sản Hà Nội — giá theo quận, phân phối diện tích, pháp lý và nội thất.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        body { font-family: var(--font-body); background: var(--bg-dark); color: var(--text-light); }
+
+        /* ── HERO ── */
+        .page-hero {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #0d0d0d 0%, #1a1225 50%, #0d1a1a 100%);
+            border-bottom: 1px solid var(--border-color);
+            padding: 4rem 2rem 3.5rem;
+            text-align: center;
+        }
+        .page-hero::before {
+            content: '';
+            position: absolute; inset: 0;
+            background-image:
+                linear-gradient(rgba(192,160,98,0.07) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(192,160,98,0.07) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: gridMove 20s linear infinite;
+        }
+        @keyframes gridMove {
+            from { background-position: 0 0; }
+            to   { background-position: 60px 60px; }
+        }
+        .page-hero::after {
+            content: '';
+            position: absolute;
+            width: 600px; height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(192,160,98,0.12) 0%, transparent 70%);
+            top: -200px; left: 50%; transform: translateX(-50%);
+            pointer-events: none;
+        }
+        .hero-content { position: relative; z-index: 1; }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(192,160,98,0.12); border: 1px solid rgba(192,160,98,0.3);
+            border-radius: 20px; padding: 4px 14px; font-size: 0.78rem;
+            color: var(--accent-gold); margin-bottom: 1.2rem; letter-spacing: 0.5px;
+        }
+        .page-hero h1 {
+            font-family: var(--font-display);
+            font-size: 2.8rem; font-weight: 600;
+            background: linear-gradient(135deg, #fff 30%, var(--accent-gold) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 0.8rem; line-height: 1.15;
+        }
+        .page-hero p { color: rgba(255,255,255,0.5); font-size: 1rem; max-width: 520px; margin: 0 auto; }
+        .hero-stats-row {
+            display: flex; justify-content: center; gap: 2.5rem;
+            margin-top: 2rem; flex-wrap: wrap;
+        }
+        .hero-stat { text-align: center; }
+        .hero-stat-val { font-family: var(--font-display); font-size: 1.6rem; font-weight: 600; color: var(--accent-gold); }
+        .hero-stat-lbl { font-size: 0.78rem; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+        /* ── KPI CARDS ── */
+        .analytics-wrap { max-width: 1200px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+        .kpi-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 1.25rem; margin-bottom: 2.5rem;
+        }
+        .kpi-card {
+            position: relative; overflow: hidden;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 14px; padding: 1.6rem 1.4rem;
+            text-align: center;
+            transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+        }
+        .kpi-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, var(--accent-gold), transparent);
+            opacity: 0; transition: opacity 0.28s;
+        }
+        .kpi-card:hover { transform: translateY(-5px); box-shadow: 0 12px 32px rgba(0,0,0,0.2); border-color: rgba(192,160,98,0.35); }
+        .kpi-card:hover::before { opacity: 1; }
+        .kpi-icon {
+            font-size: 2rem; margin-bottom: 0.75rem; display: block;
+            filter: drop-shadow(0 2px 8px rgba(192,160,98,0.3));
+        }
+        .kpi-value {
+            font-family: var(--font-display);
+            font-size: 2.2rem; font-weight: 600;
+            color: var(--accent-gold); line-height: 1;
+        }
+        .kpi-label { font-size: 0.84rem; color: var(--text-light); margin-top: 0.4rem; font-weight: 500; }
+        .kpi-sub { font-size: 0.76rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+        /* ── SECTION TITLES ── */
+        .section-title {
+            font-family: var(--font-display); font-size: 1.45rem;
+            margin-bottom: 1.4rem; display: flex; align-items: center; gap: 0.6rem;
+            color: var(--text-light);
+        }
+        .section-title::after {
+            content: ''; flex: 1; height: 1px;
+            background: linear-gradient(90deg, var(--border-color), transparent);
+            margin-left: 1rem;
+        }
+
+        /* ── CHART GRID ── */
+        .charts-row { display: grid; gap: 1.5rem; margin-bottom: 2.5rem; }
+        .charts-row.col2 { grid-template-columns: 1fr 1fr; }
+        .charts-row.col3 { grid-template-columns: 1fr 1fr 1fr; }
+        .chart-card {
+            background: var(--bg-panel); border: 1px solid var(--border-color);
+            border-radius: 14px; padding: 1.5rem;
+            transition: box-shadow 0.25s;
+            opacity: 0; transform: translateY(18px);
+            animation: cardIn 0.5s ease forwards;
+        }
+        .chart-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.15); }
+        @keyframes cardIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .chart-card:nth-child(1) { animation-delay: 0.05s; }
+        .chart-card:nth-child(2) { animation-delay: 0.12s; }
+        .chart-card:nth-child(3) { animation-delay: 0.19s; }
+        .chart-card h3 {
+            font-size: 0.8rem; font-weight: 600;
+            color: var(--text-muted); margin-bottom: 1.25rem;
+            text-transform: uppercase; letter-spacing: 0.8px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .chart-canvas-wrap { position: relative; }
+
+        /* ── STAT TABLE ── */
+        .stat-table { width: 100%; border-collapse: collapse; }
+        .stat-table th {
+            font-size: 0.72rem; text-transform: uppercase;
+            color: var(--text-muted); padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid var(--border-color); text-align: left; font-weight: 600;
+        }
+        .stat-table td { padding: 0.65rem 0.75rem; font-size: 0.9rem; border-bottom: 1px solid var(--border-color); }
+        .stat-table tr:last-child td { border-bottom: none; }
+        .stat-table tr:hover td { background: rgba(192,160,98,0.04); }
+        .stat-table td:last-child { text-align: right; font-weight: 700; color: var(--accent-gold); }
+        .stat-rank {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 22px; height: 22px; border-radius: 50%;
+            background: var(--bg-dark); font-size: 0.72rem;
+            color: var(--text-muted); margin-right: 0.5rem; flex-shrink: 0;
+        }
+        .rank-1 .stat-rank { background: rgba(255,215,0,0.15); color: #ffd700; }
+        .rank-2 .stat-rank { background: rgba(192,192,192,0.15); color: #c0c0c0; }
+        .rank-3 .stat-rank { background: rgba(205,127,50,0.15); color: #cd7f32; }
+
+        /* ── DATA BADGE ── */
+        .data-badge {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: rgba(192,160,98,0.08); border: 1px solid rgba(192,160,98,0.25);
+            border-radius: 20px; padding: 8px 18px; font-size: 0.82rem;
+            color: var(--accent-gold); margin-top: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .charts-row.col2, .charts-row.col3 { grid-template-columns: 1fr; }
+            .hero-stats-row { gap: 1.5rem; }
+        }
+        @media (max-width: 500px) { .kpi-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+{% include '_header.html' %}
+
+<div class="page-hero">
+    <div class="hero-content">
+        <div class="hero-badge">📡 Dữ liệu thực · batdongsan.com.vn</div>
+        <h1>Phân tích Thị trường BĐS</h1>
+        <p>Tổng quan chi tiết thị trường bất động sản Hà Nội dựa trên {{ stats.total }} bất động sản thực tế</p>
+        <div class="hero-stats-row">
+            <div class="hero-stat"><div class="hero-stat-val">{{ stats.total_cc }}</div><div class="hero-stat-lbl">Chung cư</div></div>
+            <div class="hero-stat"><div class="hero-stat-val">{{ stats.total_nd }}</div><div class="hero-stat-lbl">Nhà đất</div></div>
+            <div class="hero-stat"><div class="hero-stat-val">{{ stats.cc_price_median }} tỷ</div><div class="hero-stat-lbl">Giá median CC</div></div>
+            <div class="hero-stat"><div class="hero-stat-val">{{ stats.nd_price_median }} tỷ</div><div class="hero-stat-lbl">Giá median ND</div></div>
+        </div>
+    </div>
+</div>
+
+<div class="analytics-wrap">
+
+    <!-- KPI ROW -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-icon">🏢</div>
+            <div class="kpi-value">{{ stats.total_cc | int }}</div>
+            <div class="kpi-label">Căn hộ Chung Cư</div>
+            <div class="kpi-sub">Giá TB: {{ stats.cc_price_mean }} tỷ VNĐ</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon">🏠</div>
+            <div class="kpi-value">{{ stats.total_nd | int }}</div>
+            <div class="kpi-label">Nhà Đất / Phố</div>
+            <div class="kpi-sub">Giá TB: {{ stats.nd_price_mean }} tỷ VNĐ</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon">💰</div>
+            <div class="kpi-value">{{ stats.cc_price_median }}</div>
+            <div class="kpi-label">Giá Median CC (tỷ)</div>
+            <div class="kpi-sub">Từ {{ stats.cc_price_min }} — {{ stats.cc_price_max }} tỷ</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-icon">📐</div>
+            <div class="kpi-value">{{ stats.cc_area_mean }}</div>
+            <div class="kpi-label">Diện tích TB CC (m²)</div>
+            <div class="kpi-sub">Nhà đất: {{ stats.nd_area_mean }} m²</div>
+        </div>
+    </div>
+
+    <!-- DISTRICT CHARTS -->
+    <p class="section-title">🏙 Phân bố theo Quận/Huyện</p>
+    <div class="charts-row col2">
+        <div class="chart-card">
+            <h3>🏢 Số lượng Chung Cư theo Quận</h3>
+            <div class="chart-canvas-wrap"><canvas id="ccDistChart" height="240"></canvas></div>
+        </div>
+        <div class="chart-card">
+            <h3>🏘 Số lượng Nhà Đất theo Quận</h3>
+            <div class="chart-canvas-wrap"><canvas id="ndDistChart" height="240"></canvas></div>
+        </div>
+    </div>
+
+    <!-- PRICE BY DISTRICT -->
+    <p class="section-title">💵 Giá Trung Bình theo Quận</p>
+    <div class="charts-row col2">
+        <div class="chart-card">
+            <h3>💰 Giá TB Chung Cư (tỷ VNĐ/căn)</h3>
+            <div class="chart-canvas-wrap"><canvas id="ccPriceDistChart" height="260"></canvas></div>
+        </div>
+        <div class="chart-card">
+            <h3>💵 Giá TB Nhà Đất (tỷ VNĐ/căn)</h3>
+            <div class="chart-canvas-wrap"><canvas id="ndPriceDistChart" height="260"></canvas></div>
+        </div>
+    </div>
+
+    <!-- BREAKDOWNS -->
+    <p class="section-title">📋 Đặc điểm Chung Cư</p>
+    <div class="charts-row col3">
+        <div class="chart-card">
+            <h3>📜 Tỷ lệ Pháp Lý</h3>
+            <canvas id="legalChart" height="210"></canvas>
+        </div>
+        <div class="chart-card">
+            <h3>🛋 Tỷ lệ Nội Thất</h3>
+            <canvas id="furnitureChart" height="210"></canvas>
+        </div>
+        <div class="chart-card">
+            <h3>🛏 Số Phòng Ngủ</h3>
+            <canvas id="bedroomChart" height="210"></canvas>
+        </div>
+    </div>
+
+    <!-- PRICE RANKING TABLE -->
+    <p class="section-title">🏆 Bảng Xếp Hạng Giá</p>
+    <div class="charts-row col2">
+        <div class="chart-card">
+            <h3>🏆 Top Quận Đắt Nhất — Chung Cư</h3>
+            <table class="stat-table">
+                <thead><tr><th>Quận</th><th>Giá TB (tỷ VNĐ)</th></tr></thead>
+                <tbody>
+                {% for dist, price in stats.cc_price_by_dist.items() %}
+                <tr class="rank-{{ loop.index }}">
+                    <td><span class="stat-rank">{{ loop.index }}</span>{{ dist }}</td>
+                    <td>{{ price }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="chart-card">
+            <h3>🏆 Top Quận Đắt Nhất — Nhà Đất</h3>
+            <table class="stat-table">
+                <thead><tr><th>Quận</th><th>Giá TB (tỷ VNĐ)</th></tr></thead>
+                <tbody>
+                {% for dist, price in stats.nd_price_by_dist.items() %}
+                <tr class="rank-{{ loop.index }}">
+                    <td><span class="stat-rank">{{ loop.index }}</span>{{ dist }}</td>
+                    <td>{{ price }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div style="text-align:center">
+        <span class="data-badge">📌 Dữ liệu từ batdongsan.com.vn · {{ stats.total }} bất động sản · Xử lý bởi Prophet Estate AI</span>
+    </div>
+
+</div>
+
+{% include '_footer.html' %}
+
+<script>
+const S = {{ stats_json | safe }};
+
+const GOLD   = 'rgba(192, 160, 98, 0.85)';
+const GOLD2  = 'rgba(192, 160, 98, 0.4)';
+const BLUE   = 'rgba(99, 179, 237, 0.85)';
+const BLUE2  = 'rgba(99, 179, 237, 0.4)';
+const COLORS = ['#c0a062','#63b3ed','#68d391','#f6ad55','#fc8181','#b794f4','#76e4f7','#fbd38d','#9ae6b4','#e2b4bd'];
+
+Chart.defaults.color = '#888';
+Chart.defaults.borderColor = 'rgba(255,255,255,0.07)';
+Chart.defaults.font.family = 'Outfit, sans-serif';
+
+function barChart(id, labels, data, color, horizontal = false) {
+    new Chart(document.getElementById(id), {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [{ data, backgroundColor: color, borderRadius: 5, borderSkipped: false }]
+        },
+        options: {
+            indexAxis: horizontal ? 'y' : 'x',
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { color: 'rgba(255,255,255,0.05)' } },
+                y: { grid: { color: 'rgba(255,255,255,0.05)' } }
+            }
+        }
+    });
+}
+
+function doughnutChart(id, labels, data) {
+    new Chart(document.getElementById(id), {
+        type: 'doughnut',
+        data: {
+            labels,
+            datasets: [{ data, backgroundColor: COLORS, borderWidth: 2, borderColor: '#111' }]
+        },
+        options: {
+            plugins: {
+                legend: { position: 'bottom', labels: { boxWidth: 12, padding: 10, font: { size: 11 } } }
+            },
+            cutout: '60%'
+        }
+    });
+}
+
+// District count charts
+barChart('ccDistChart',  Object.keys(S.cc_dist_count),  Object.values(S.cc_dist_count),  GOLD,  false);
+barChart('ndDistChart',  Object.keys(S.nd_dist_count),  Object.values(S.nd_dist_count),  BLUE,  false);
+
+// Price by district — horizontal
+barChart('ccPriceDistChart', Object.keys(S.cc_price_by_dist), Object.values(S.cc_price_by_dist), COLORS, true);
+barChart('ndPriceDistChart', Object.keys(S.nd_price_by_dist), Object.values(S.nd_price_by_dist), COLORS, true);
+
+// Doughnuts
+doughnutChart('legalChart',     Object.keys(S.cc_legal),     Object.values(S.cc_legal));
+doughnutChart('furnitureChart', Object.keys(S.cc_furniture), Object.values(S.cc_furniture));
+
+// Bedroom bar
+const bedLabels = Object.keys(S.cc_bedroom).map(k => k + ' PN');
+barChart('bedroomChart', bedLabels, Object.values(S.cc_bedroom), GOLD, false);
+
+// Smooth page transition
+document.addEventListener('click', e => {
+    const link = e.target.closest('a[href]');
+    if (link && link.href && !link.href.startsWith('#') && link.target !== '_blank') {
+        e.preventDefault();
+        document.body.style.transition = 'opacity 0.25s';
+        document.body.style.opacity = '0';
+        setTimeout(() => location.href = link.href, 250);
+    }
+});
+</script>
+</body>
+</html>

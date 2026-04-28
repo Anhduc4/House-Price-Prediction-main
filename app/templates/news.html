@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tin Tức Thị Trường BĐS | Prophet Estate</title>
+    <meta name="description" content="Cập nhật mới nhất về thị trường bất động sản Hà Nội — giá, chính sách, phân tích và xu hướng đầu tư.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        body { font-family: var(--font-body); background: var(--bg-dark); color: var(--text-light); margin: 0; }
+
+        /* ── HERO ── */
+        .news-hero {
+            position: relative; overflow: hidden;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1225 60%, #0d1a1a 100%);
+            border-bottom: 1px solid var(--border-color);
+            padding: 4rem 2rem 3rem; text-align: center;
+        }
+        .news-hero::before {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(192,160,98,0.10) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .hero-inner { position: relative; z-index: 1; }
+        .hero-tag {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(192,160,98,0.12); border: 1px solid rgba(192,160,98,0.3);
+            border-radius: 20px; padding: 4px 14px; font-size: 0.78rem;
+            color: var(--accent-gold); margin-bottom: 1rem; letter-spacing: 0.5px;
+        }
+        .news-hero h1 {
+            font-family: var(--font-display); font-size: 2.8rem; font-weight: 600;
+            background: linear-gradient(135deg, #fff 30%, var(--accent-gold));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 0.6rem; line-height: 1.2;
+        }
+        .news-hero p { color: rgba(255,255,255,0.5); font-size: 0.95rem; margin: 0 auto; max-width: 480px; }
+
+        /* ── FILTER TABS ── */
+        .filter-bar {
+            display: flex; gap: 0.5rem; flex-wrap: wrap;
+            max-width: 1140px; margin: 0 auto;
+            padding: 1.5rem 1.5rem 0;
+        }
+        .ftab {
+            border: 1px solid var(--border-color); background: var(--bg-panel);
+            color: var(--text-muted); padding: 6px 16px;
+            border-radius: 20px; cursor: pointer; font-size: 0.83rem;
+            font-family: var(--font-body); transition: all 0.2s;
+        }
+        .ftab.active, .ftab:hover { background: var(--accent-gold); color: #fff; border-color: var(--accent-gold); }
+
+        /* ── CONTENT WRAP ── */
+        .news-wrap { max-width: 1140px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
+
+        /* ── FEATURED (top big card) ── */
+        .featured-card {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 0; border-radius: 16px; overflow: hidden;
+            border: 1px solid var(--border-color);
+            margin-bottom: 2.5rem;
+            transition: box-shadow 0.25s, transform 0.25s;
+            cursor: pointer;
+        }
+        .featured-card:hover { box-shadow: 0 16px 40px rgba(0,0,0,0.3); transform: translateY(-3px); }
+        .featured-img {
+            height: 360px; overflow: hidden;
+        }
+        .featured-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+        .featured-card:hover .featured-img img { transform: scale(1.04); }
+        .featured-body {
+            background: var(--bg-panel);
+            padding: 2.5rem 2rem; display: flex; flex-direction: column; justify-content: center;
+        }
+        .art-tag {
+            display: inline-block; font-size: 0.72rem; text-transform: uppercase;
+            font-weight: 700; letter-spacing: 1px; color: var(--accent-gold);
+            background: rgba(192,160,98,0.1); border: 1px solid rgba(192,160,98,0.2);
+            border-radius: 4px; padding: 3px 10px; margin-bottom: 1rem;
+        }
+        .featured-body h2 {
+            font-family: var(--font-display); font-size: 1.6rem;
+            line-height: 1.3; margin-bottom: 1rem; color: var(--text-light);
+        }
+        .featured-body p { color: var(--text-muted); line-height: 1.7; font-size: 0.92rem; margin-bottom: 1.5rem; }
+        .art-meta { display: flex; align-items: center; gap: 1rem; font-size: 0.78rem; color: var(--text-muted); }
+        .art-meta .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--text-muted); }
+        .read-more {
+            display: inline-flex; align-items: center; gap: 6px;
+            color: var(--accent-gold); font-size: 0.85rem; font-weight: 600;
+            text-decoration: none; margin-top: 0.5rem; transition: gap 0.2s;
+        }
+        .read-more:hover { gap: 10px; }
+
+        /* ── ARTICLE GRID ── */
+        .articles-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        .art-card {
+            background: var(--bg-panel); border: 1px solid var(--border-color);
+            border-radius: 14px; overflow: hidden; cursor: pointer;
+            transition: transform 0.25s, box-shadow 0.25s;
+            opacity: 0; animation: fadeUp 0.5s ease forwards;
+        }
+        .art-card:hover { transform: translateY(-5px); box-shadow: 0 12px 32px rgba(0,0,0,0.25); }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        .art-card:nth-child(1) { animation-delay:0.05s; }
+        .art-card:nth-child(2) { animation-delay:0.12s; }
+        .art-card:nth-child(3) { animation-delay:0.19s; }
+        .art-card:nth-child(4) { animation-delay:0.26s; }
+        .art-card:nth-child(5) { animation-delay:0.33s; }
+        .art-card:nth-child(6) { animation-delay:0.40s; }
+
+        .art-img { height: 190px; overflow: hidden; }
+        .art-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+        .art-card:hover .art-img img { transform: scale(1.06); }
+
+        .art-body { padding: 1.25rem; }
+        .art-body .art-tag { margin-bottom: 0.6rem; }
+        .art-body h3 { font-size: 1rem; font-weight: 600; line-height: 1.4; margin-bottom: 0.5rem; }
+        .art-body p { font-size: 0.84rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 0.75rem; }
+        .art-body .art-meta { font-size: 0.76rem; }
+
+        /* ── NEWSLETTER ── */
+        .newsletter {
+            background: linear-gradient(135deg, rgba(192,160,98,0.1), rgba(192,160,98,0.03));
+            border: 1px solid rgba(192,160,98,0.2);
+            border-radius: 16px; padding: 2.5rem 2rem; text-align: center; margin-top: 3rem;
+        }
+        .newsletter h3 { font-family: var(--font-display); font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .newsletter p { color: var(--text-muted); margin-bottom: 1.5rem; }
+        .newsletter-form { display: flex; gap: 0; max-width: 400px; margin: 0 auto; }
+        .newsletter-form input {
+            flex: 1; border: 1px solid var(--border-color); border-right: none;
+            border-radius: 8px 0 0 8px; padding: 11px 16px;
+            background: var(--bg-dark); color: var(--text-light);
+            font-family: var(--font-body); font-size: 0.9rem; outline: none;
+        }
+        .newsletter-form input:focus { border-color: var(--accent-gold); }
+        .newsletter-form button {
+            background: var(--accent-gold); color: #fff; border: none;
+            padding: 11px 22px; border-radius: 0 8px 8px 0; cursor: pointer;
+            font-family: var(--font-body); font-size: 0.9rem; font-weight: 600;
+            transition: opacity 0.2s;
+        }
+        .newsletter-form button:hover { opacity: 0.85; }
+
+        @media (max-width: 900px) {
+            .featured-card { grid-template-columns: 1fr; }
+            .featured-img { height: 240px; }
+            .articles-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 600px) {
+            .articles-grid { grid-template-columns: 1fr; }
+            .news-hero h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+{% include '_header.html' %}
+
+<!-- HERO -->
+<div class="news-hero">
+    <div class="hero-inner">
+        <div class="hero-tag">📰 Cập nhật hàng ngày</div>
+        <h1>Tin Tức Thị Trường BĐS</h1>
+        <p>Cập nhật mới nhất về giá, chính sách, và xu hướng bất động sản Hà Nội</p>
+    </div>
+</div>
+
+<!-- FILTER TABS -->
+<div class="filter-bar">
+    <button class="ftab active" onclick="filterNews(this,'all')">Tất cả</button>
+    <button class="ftab" onclick="filterNews(this,'thi-truong')">Thị trường</button>
+    <button class="ftab" onclick="filterNews(this,'phan-tich')">Phân tích</button>
+    <button class="ftab" onclick="filterNews(this,'dau-tu')">Đầu tư</button>
+    <button class="ftab" onclick="filterNews(this,'phap-ly')">Pháp lý</button>
+    <button class="ftab" onclick="filterNews(this,'du-an')">Dự án</button>
+</div>
+
+<div class="news-wrap">
+
+    <!-- FEATURED -->
+    <div class="featured-card" data-cat="thi-truong">
+        <div class="featured-img">
+            <img src="{{ url_for('static', filename='news_market.png') }}" alt="Giá chung cư Hà Nội tăng mạnh" loading="eager">
+        </div>
+        <div class="featured-body">
+            <span class="art-tag">📈 Thị trường</span>
+            <h2>Giá chung cư Hà Nội tăng mạnh trong quý 1/2025 — trung bình đạt 8.52 tỷ đồng</h2>
+            <p>Dữ liệu thực tế từ 1.031 căn hộ thu thập trên batdongsan.com.vn cho thấy giá chung cư tại Hà Nội đang tăng đáng kể, đặc biệt tại Tây Hồ và Cầu Giấy — hai quận dẫn đầu với giá trung bình vượt 11 tỷ đồng.</p>
+            <div class="art-meta">
+                <span>👤 Prophet Estate AI</span>
+                <span class="dot"></span>
+                <span>28/04/2025</span>
+                <span class="dot"></span>
+                <span>5 phút đọc</span>
+            </div>
+            <a href="#" class="read-more">Đọc tiếp →</a>
+        </div>
+    </div>
+
+    <!-- ARTICLE GRID -->
+    <div class="articles-grid" id="articles-grid">
+
+        <div class="art-card" data-cat="phan-tich">
+            <div class="art-img">
+                <img src="{{ url_for('static', filename='news_namtuliem.png') }}" alt="Nam Từ Liêm" loading="lazy">
+            </div>
+            <div class="art-body">
+                <span class="art-tag">🏗 Phân tích</span>
+                <h3>Nam Từ Liêm dẫn đầu cả nước về số lượng chung cư mới trong 2025</h3>
+                <p>Với 205 dự án ghi nhận, Nam Từ Liêm trở thành quận sôi động nhất thị trường Hà Nội năm 2025, giá trung bình 7.32 tỷ đồng.</p>
+                <div class="art-meta"><span>25/04/2025</span><span class="dot"></span><span>3 phút đọc</span></div>
+            </div>
+        </div>
+
+        <div class="art-card" data-cat="dau-tu">
+            <div class="art-img">
+                <img src="{{ url_for('static', filename='news_tayho.png') }}" alt="Tây Hồ" loading="lazy">
+            </div>
+            <div class="art-body">
+                <span class="art-tag">💎 Đầu tư</span>
+                <h3>Tây Hồ — phân khúc nhà đất đắt nhất Hà Nội với giá TB 33.55 tỷ/căn</h3>
+                <p>Tây Hồ tiếp tục khẳng định vị thế quận đắt nhất thị trường nhà đất Hà Nội với mức giá trung bình cao gấp đôi so với Đống Đa và Thanh Xuân.</p>
+                <div class="art-meta"><span>22/04/2025</span><span class="dot"></span><span>4 phút đọc</span></div>
+            </div>
+        </div>
+
+        <div class="art-card" data-cat="phap-ly">
+            <div class="art-img">
+                <img src="{{ url_for('static', filename='news_legal.png') }}" alt="Sổ đỏ sổ hồng" loading="lazy">
+            </div>
+            <div class="art-body">
+                <span class="art-tag">📜 Pháp lý</span>
+                <h3>Cập nhật quy định mới về sổ đỏ/sổ hồng và quy trình sang tên năm 2025</h3>
+                <p>68% bất động sản thị trường Hà Nội đã có sổ đỏ/sổ hồng, 16% đang theo dạng HĐMB. Các quy định mới sẽ ảnh hưởng trực tiếp đến giao dịch BĐS.</p>
+                <div class="art-meta"><span>18/04/2025</span><span class="dot"></span><span>6 phút đọc</span></div>
+            </div>
+        </div>
+
+        <div class="art-card" data-cat="du-an">
+            <div class="art-img">
+                <img src="{{ url_for('static', filename='news_caugiay.png') }}" alt="Cầu Giấy" loading="lazy">
+            </div>
+            <div class="art-body">
+                <span class="art-tag">🏢 Dự án</span>
+                <h3>Loạt dự án chung cư cao cấp sắp mở bán tại Cầu Giấy — giá từ 11.86 tỷ</h3>
+                <p>Cầu Giấy hiện có 117 căn hộ đang giao dịch với mức giá trung bình đứng thứ 2 toàn thành phố, các dự án mới hứa hẹn đẩy con số này lên cao hơn.</p>
+                <div class="art-meta"><span>15/04/2025</span><span class="dot"></span><span>3 phút đọc</span></div>
+            </div>
+        </div>
+
+        <div class="art-card" data-cat="dau-tu">
+            <div class="art-img">
+                <img src="{{ url_for('static', filename='news_investment.png') }}" alt="Đầu tư vùng ven" loading="lazy">
+            </div>
+            <div class="art-body">
+                <span class="art-tag">📉 Đầu tư</span>
+                <h3>Giá nhà đất Gia Lâm và vùng ven điều chỉnh — cơ hội cho nhà đầu tư dài hạn?</h3>
+                <p>Gia Lâm ghi nhận giá trung bình chung cư chỉ 4.01 tỷ đồng — thấp nhất Hà Nội, mở ra cơ hội đầu tư giá trị cho những ai chấp nhận tầm nhìn 5–10 năm.</p>
+                <div class="art-meta"><span>10/04/2025</span><span class="dot"></span><span>5 phút đọc</span></div>
+            </div>
+        </div>
+
+        <div class="art-card" data-cat="thi-truong">
+            <div class="art-img">
+                <img src="{{ url_for('static', filename='news_market.png') }}" alt="Thị trường" loading="lazy">
+            </div>
+            <div class="art-body">
+                <span class="art-tag">📊 Thị trường</span>
+                <h3>Tổng kết Q1/2025: 2.582 giao dịch BĐS Hà Nội — tăng 23% so với cùng kỳ</h3>
+                <p>Dữ liệu Prophet Estate tổng hợp từ batdongsan.com.vn cho thấy thị trường BĐS Hà Nội khởi đầu năm 2025 tích cực với lượng giao dịch tăng mạnh.</p>
+                <div class="art-meta"><span>05/04/2025</span><span class="dot"></span><span>4 phút đọc</span></div>
+            </div>
+        </div>
+
+    </div><!-- /articles-grid -->
+
+    <!-- NEWSLETTER -->
+    <div class="newsletter">
+        <h3>📬 Nhận bản tin BĐS hàng tuần</h3>
+        <p>Cập nhật xu hướng thị trường, phân tích giá và cơ hội đầu tư — trực tiếp vào hộp thư của bạn.</p>
+        <div class="newsletter-form">
+            <input type="email" placeholder="email@example.com" id="nl-email">
+            <button onclick="subscribeNL()">Đăng ký →</button>
+        </div>
+    </div>
+
+</div><!-- /news-wrap -->
+
+{% include '_footer.html' %}
+
+<script>
+function filterNews(btn, cat) {
+    document.querySelectorAll('.ftab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.art-card').forEach(card => {
+        const show = cat === 'all' || card.dataset.cat === cat;
+        card.style.display = show ? '' : 'none';
+    });
+    const feat = document.querySelector('.featured-card');
+    if (feat) feat.style.display = (cat === 'all' || feat.dataset.cat === cat) ? '' : 'none';
+}
+
+function subscribeNL() {
+    const el = document.getElementById('nl-email');
+    if (!el.value || !el.value.includes('@')) { el.focus(); return; }
+    el.value = ''; 
+    alert('✅ Cảm ơn bạn đã đăng ký nhận bản tin Prophet Estate!');
+}
+
+document.addEventListener('click', e => {
+    const link = e.target.closest('a[href]');
+    if (link && link.href && !link.href.startsWith('#') && link.target !== '_blank') {
+        e.preventDefault();
+        document.body.style.transition = 'opacity 0.25s';
+        document.body.style.opacity = '0';
+        setTimeout(() => location.href = link.href, 250);
+    }
+});
+</script>
+</body>
+</html>

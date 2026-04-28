@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dự Đoán Giá Nhà Đất | Prophet Estate</title>
+    <meta name="description"
+        content="Định giá bất động sản thông minh bằng AI — chính xác, nhanh chóng, dựa trên dữ liệu thị trường thực tế Việt Nam.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-dark);
+            color: var(--text-light);
+            margin: 0;
+        }
+
+        /* ══════════════════════════════
+           HERO — full viewport height
+        ══════════════════════════════ */
+        .hero-fullpage {
+            position: relative;
+            height: calc(100vh - 62px);
+            min-height: 520px;
+            overflow: hidden;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .hero-bg-img {
+            position: absolute;
+            inset: 0;
+            background-image: url("{{ url_for('static', filename='hero_image.jpg') }}");
+            background-size: cover;
+            background-position: center 30%;
+            transform: scale(1.04);
+            transition: transform 8s ease;
+        }
+
+        .hero-bg-img.loaded {
+            transform: scale(1);
+        }
+
+        .hero-gradient {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom,
+                    rgba(0, 0, 0, 0.15) 0%,
+                    rgba(0, 0, 0, 0.25) 40%,
+                    rgba(0, 0, 0, 0.80) 80%,
+                    rgba(5, 5, 5, 1) 100%);
+        }
+
+        /* Subtle gold shimmer top-left */
+        .hero-gradient::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 55% 60% at 15% 35%, rgba(192, 160, 98, 0.10) 0%, transparent 70%);
+        }
+
+        .hero-text-wrap {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            padding: 0 6vw 4rem;
+        }
+
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(192, 160, 98, 0.15);
+            border: 1px solid rgba(192, 160, 98, 0.35);
+            border-radius: 20px;
+            padding: 5px 16px;
+            font-size: 0.78rem;
+            letter-spacing: 0.7px;
+            color: var(--accent-gold);
+            margin-bottom: 1.2rem;
+        }
+
+        .hero-title {
+            font-family: var(--font-display);
+            font-size: clamp(2.8rem, 6vw, 5rem);
+            font-weight: 600;
+            line-height: 1.1;
+            color: #fff;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .hero-title em {
+            font-style: italic;
+            color: var(--accent-gold);
+        }
+
+        .hero-sub {
+            color: rgba(255, 255, 255, 0.65);
+            font-size: 1.05rem;
+            max-width: 500px;
+            line-height: 1.7;
+            margin-bottom: 2rem;
+        }
+
+        .hero-cta-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .hero-cta-primary {
+            background: var(--accent-gold);
+            color: #fff;
+            border: none;
+            padding: 13px 28px;
+            border-radius: 8px;
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .hero-cta-primary:hover {
+            opacity: 0.85;
+            transform: translateY(-1px);
+        }
+
+        .hero-cta-secondary {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .hero-cta-secondary:hover {
+            color: #fff;
+        }
+
+        /* Floating stats */
+        .hero-stats {
+            position: absolute;
+            right: 5vw;
+            bottom: 3.5rem;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .hs-card {
+            background: rgba(10, 10, 10, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(192, 160, 98, 0.2);
+            border-radius: 12px;
+            padding: 0.9rem 1.4rem;
+            text-align: center;
+            min-width: 130px;
+        }
+
+        .hs-num {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--accent-gold);
+            line-height: 1;
+        }
+
+        .hs-lbl {
+            font-size: 0.72rem;
+            color: rgba(255, 255, 255, 0.45);
+            margin-top: 3px;
+        }
+
+        /* Scroll indicator */
+        .scroll-hint {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            color: rgba(255, 255, 255, 0.35);
+            font-size: 0.72rem;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+        }
+
+        .scroll-hint .arr {
+            font-size: 1.1rem;
+            animation: bounce 1.8s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0)
+            }
+
+            50% {
+                transform: translateY(5px)
+            }
+        }
+
+        /* ══════════════════════════════
+           FORM SECTION — below hero
+        ══════════════════════════════ */
+        .form-section-wrap {
+            background: var(--bg-dark);
+            padding: 5rem 1.5rem 6rem;
+        }
+
+        .form-inner {
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .form-header h2 {
+            font-family: var(--font-display);
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #fff 40%, var(--accent-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .form-header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Type toggle */
+        .toggle-container {
+            display: flex;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 4px;
+            max-width: 320px;
+            margin: 0 auto 2.5rem;
+            position: relative;
+        }
+
+        .toggle-container input[type="radio"] {
+            display: none;
+        }
+
+        .toggle-label {
+            flex: 1;
+            text-align: center;
+            padding: 10px 16px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            transition: color 0.25s;
+            position: relative;
+            z-index: 1;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: calc(50% - 4px);
+            height: calc(100% - 8px);
+            background: var(--accent-gold);
+            border-radius: 7px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #type-nha-dat:checked~.toggle-slider {
+            transform: translateX(100%);
+        }
+
+        input[type="radio"]:checked+.toggle-label {
+            color: #fff;
+        }
+
+        /* Form card */
+        .form-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 14px 14px 6px;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            border: 1px solid var(--border-color);
+            border-radius: 9px;
+            font-family: var(--font-body);
+            font-size: 0.92rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            border-color: var(--accent-gold);
+        }
+
+        .input-group label {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            pointer-events: none;
+            transition: all 0.18s;
+        }
+
+        .input-group input:focus~label,
+        .input-group input:not(:placeholder-shown)~label,
+        .input-group.active-label label,
+        label.active-label {
+            top: 8px;
+            transform: none;
+            font-size: 0.7rem;
+            color: var(--accent-gold);
+        }
+
+        .input-group select~label,
+        label.active-label {
+            top: 8px !important;
+            transform: none !important;
+            font-size: 0.7rem !important;
+            color: var(--accent-gold) !important;
+        }
+
+        .input-group select {
+            padding-top: 20px;
+        }
+
+        .error-message {
+            color: #fc8181;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            min-height: 20px;
+        }
+
+        /* Submit button */
+        #submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--accent-gold);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        #submit-btn:hover:not(:disabled) {
+            opacity: 0.88;
+            transform: translateY(-1px);
+        }
+
+        #submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        #submit-btn.loading .btn-text {
+            display: none;
+        }
+
+        #submit-btn.loading .spinner {
+            display: block;
+        }
+
+        /* Result */
+        .result-container {
+            margin-top: 2rem;
+            background: linear-gradient(135deg, rgba(192, 160, 98, 0.12), rgba(192, 160, 98, 0.04));
+            border: 1px solid rgba(192, 160, 98, 0.3);
+            border-radius: 14px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .result-container.hidden {
+            display: none;
+        }
+
+        .result-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .result-price {
+            font-family: var(--font-display);
+            font-size: 2.4rem;
+            color: var(--accent-gold);
+            margin: 0.3rem 0;
+        }
+
+        .result-detail {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .secondary-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 9px 22px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: var(--font-body);
+            font-size: 0.88rem;
+            transition: all 0.2s;
+        }
+
+        .secondary-btn:hover {
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+        }
+
+        /* Similar properties */
+        .similar-properties {
+            margin-top: 2rem;
+        }
+
+        .similar-properties.hidden {
+            display: none;
+        }
+
+        .similar-title {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+
+        .similar-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        @media (max-width: 700px) {
+            .hero-stats {
+                display: none;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-card {
+                padding: 1.5rem;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .similar-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    {% include '_header.html' %}
+
+    <!-- ═══ HERO ═══ -->
+    <section class="hero-fullpage" id="hero">
+        <div class="hero-bg-img" id="heroBg"></div>
+        <div class="hero-gradient"></div>
+
+        <!-- Floating stats right -->
+        <div class="hero-stats">
+            <div class="hs-card">
+                <div class="hs-num">2.5K+</div>
+                <div class="hs-lbl">BĐS phân tích</div>
+            </div>
+            <div class="hs-card">
+                <div class="hs-num">13</div>
+                <div class="hs-lbl">Quận Hà Nội</div>
+            </div>
+            <div class="hs-card">
+                <div class="hs-num">AI</div>
+                <div class="hs-lbl">Random Forest</div>
+            </div>
+        </div>
+
+        <!-- Text bottom-left -->
+        <div class="hero-text-wrap">
+            <div class="hero-eyebrow">⚡ Định giá bởi Machine Learning</div>
+            <h1 class="hero-title">Dự Đoán<br><em>Giá Nhà Đất.</em></h1>
+            <p class="hero-sub">Ứng dụng AI tiên tiến mang đến định giá bất động sản chính xác nhất — dựa trên hơn 2.500
+                giao dịch thực tế tại Hà Nội.</p>
+            <div class="hero-cta-row">
+                <button class="hero-cta-primary" onclick="scrollToForm()">✨ Định giá ngay</button>
+                <a href="/analytics" class="hero-cta-secondary">📊 Xem phân tích thị trường →</a>
+            </div>
+        </div>
+
+        <!-- Scroll hint -->
+        <div class="scroll-hint" onclick="scrollToForm()">
+            <span>Cuộn xuống</span>
+            <span class="arr">↓</span>
+        </div>
+    </section>
+
+    <!-- ═══ FORM SECTION ═══ -->
+    <section class="form-section-wrap" id="form-section">
+        <div class="form-inner">
+
+            <div class="form-header">
+                <h2>Định Giá Bất Động Sản AI</h2>
+                <p>Nhập thông tin bất động sản để nhận ước tính giá từ mô hình Machine Learning của chúng tôi.</p>
+            </div>
+
+            <!-- Type toggle -->
+            <div class="toggle-container">
+                <input type="radio" id="type-chung-cu" name="property_type_toggle" value="chung_cu" checked>
+                <label for="type-chung-cu" class="toggle-label">🏢 Chung Cư</label>
+                <input type="radio" id="type-nha-dat" name="property_type_toggle" value="nha_dat">
+                <label for="type-nha-dat" class="toggle-label">🏠 Nhà Đất</label>
+                <div class="toggle-slider"></div>
+            </div>
+
+            <div class="form-card">
+                <form id="prediction-form">
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <input type="number" id="area" name="area" step="0.1" required placeholder=" ">
+                            <label for="area">Diện tích (m²)</label>
+                        </div>
+                        <div class="input-group">
+                            <input type="number" id="bedrooms" name="bedrooms" min="0" required placeholder=" ">
+                            <label for="bedrooms">Số phòng ngủ</label>
+                        </div>
+                        <div class="input-group">
+                            <select id="district" name="district">
+                                <option value="Cầu Giấy">Cầu Giấy</option>
+                                <option value="Nam Từ Liêm">Nam Từ Liêm</option>
+                                <option value="Thanh Xuân">Thanh Xuân</option>
+                                <option value="Hà Đông">Hà Đông</option>
+                                <option value="Đống Đa">Đống Đa</option>
+                                <option value="Tây Hồ">Tây Hồ</option>
+                                <option value="Hoàn Kiếm">Hoàn Kiếm</option>
+                                <option value="Hoài Đức">Hoài Đức</option>
+                                <option value="Hoàng Mai">Hoàng Mai</option>
+                                <option value="Long Biên">Long Biên</option>
+                                <option value="Bắc Từ Liêm">Bắc Từ Liêm</option>
+                                <option value="Gia Lâm">Gia Lâm</option>
+                                <option value="Khác">Khác</option>
+                            </select>
+                            <label for="district" class="active-label">Quận/Huyện</label>
+                        </div>
+                        <div class="input-group">
+                            <select id="direction" name="direction">
+                                <option value="Đông">Đông</option>
+                                <option value="Tây">Tây</option>
+                                <option value="Nam">Nam</option>
+                                <option value="Bắc">Bắc</option>
+                                <option value="Đông Nam">Đông Nam</option>
+                                <option value="Tây Bắc">Tây Bắc</option>
+                                <option value="Đông Bắc">Đông Bắc</option>
+                                <option value="Tây Nam">Tây Nam</option>
+                                <option value="Không rõ">Không rõ</option>
+                            </select>
+                            <label for="direction" class="active-label">Hướng nhà</label>
+                        </div>
+
+                        <!-- Chung Cư only -->
+                        <div class="input-group chung-cu-only">
+                            <select id="balcony_direction" name="balcony_direction">
+                                <option value="Đông">Đông</option>
+                                <option value="Tây">Tây</option>
+                                <option value="Nam">Nam</option>
+                                <option value="Bắc">Bắc</option>
+                                <option value="Đông Nam">Đông Nam</option>
+                                <option value="Không rõ">Không rõ</option>
+                            </select>
+                            <label for="balcony_direction" class="active-label">Hướng ban công</label>
+                        </div>
+
+                        <!-- Nhà Đất only -->
+                        <div class="input-group nha-dat-only" style="display:none">
+                            <input type="number" id="floors" name="floors" min="1" placeholder=" ">
+                            <label for="floors">Số tầng</label>
+                        </div>
+                        <div class="input-group nha-dat-only" style="display:none">
+                            <input type="number" id="frontage" name="frontage" step="0.1" placeholder=" ">
+                            <label for="frontage">Mặt tiền (m)</label>
+                        </div>
+                        <div class="input-group nha-dat-only" style="display:none">
+                            <input type="number" id="road_width" name="road_width" step="0.1" placeholder=" ">
+                            <label for="road_width">Đường vào (m)</label>
+                        </div>
+
+                        <div class="input-group">
+                            <select id="furniture" name="furniture">
+                                <option value="Đầy đủ">Đầy đủ</option>
+                                <option value="Cơ bản">Cơ bản</option>
+                                <option value="Không nội thất">Không nội thất</option>
+                                <option value="Không rõ">Không rõ</option>
+                            </select>
+                            <label for="furniture" class="active-label">Nội thất</label>
+                        </div>
+                        <div class="input-group">
+                            <select id="legal" name="legal">
+                                <option value="Sổ đỏ">Sổ đỏ/Sổ hồng</option>
+                                <option value="Hợp đồng mua bán">HĐMB</option>
+                                <option value="Không rõ">Không rõ</option>
+                            </select>
+                            <label for="legal" class="active-label">Pháp lý</label>
+                        </div>
+                    </div>
+
+                    <div id="error-message" class="error-message"></div>
+
+                    <button type="submit" id="submit-btn">
+                        <span class="btn-text">✨ Dự Đoán Giá Trị</span>
+                        <div class="spinner"></div>
+                    </button>
+                </form>
+
+                <div id="result-container" class="result-container hidden">
+                    <p class="result-label">Giá ước tính</p>
+                    <h3 id="predicted-price" class="result-price">--</h3>
+                    <p id="result-message" class="result-detail"></p>
+                    <button id="reset-btn" class="secondary-btn">↺ Thực hiện lại</button>
+
+                    <div id="similar-properties-container" class="similar-properties hidden">
+                        <h4 class="similar-title">Tham khảo nhà tương tự</h4>
+                        <div id="similar-list" class="similar-list"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    {% include '_footer.html' %}
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        // Animate hero bg on load
+        window.addEventListener('load', () => {
+            document.getElementById('heroBg').classList.add('loaded');
+        });
+
+        function scrollToForm() {
+            document.getElementById('form-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Page transition for links
+        document.addEventListener('click', e => {
+            const link = e.target.closest('a[href]');
+            if (link && link.href && !link.href.startsWith('#') && link.target !== '_blank') {
+                e.preventDefault();
+                document.body.style.transition = 'opacity 0.25s';
+                document.body.style.opacity = '0';
+                setTimeout(() => location.href = link.href, 250);
+            }
+        });
+    </script>
+</body>
+
+</html>

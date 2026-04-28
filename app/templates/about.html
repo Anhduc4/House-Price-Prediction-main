@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Về Chúng Tôi | Prophet Estate</title>
+    <meta name="description"
+        content="Nhóm 1 — những sinh viên đam mê AI và bất động sản, xây dựng hệ thống định giá thông minh ProphetEstate.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-dark);
+            color: var(--text-light);
+            margin: 0;
+        }
+
+        /* ── HERO ── */
+        .about-hero {
+            position: relative;
+            overflow: hidden;
+            min-height: 420px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background-image: url("{{ url_for('static', filename='about_hero.png') }}");
+            background-size: cover;
+            background-position: center;
+            filter: brightness(0.3);
+        }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.8) 100%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            padding: 4rem 2rem 3rem;
+            max-width: 700px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(192, 160, 98, 0.15);
+            border: 1px solid rgba(192, 160, 98, 0.4);
+            border-radius: 20px;
+            padding: 5px 16px;
+            font-size: 0.78rem;
+            color: var(--accent-gold);
+            margin-bottom: 1.2rem;
+            letter-spacing: 0.5px;
+        }
+
+        .about-hero h1 {
+            font-family: var(--font-display);
+            font-size: 3rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #fff 40%, var(--accent-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.15;
+            margin-bottom: 1rem;
+        }
+
+        .about-hero p {
+            color: rgba(255, 255, 255, 0.65);
+            font-size: 1rem;
+            line-height: 1.7;
+            max-width: 540px;
+            margin: 0 auto;
+        }
+
+        /* ── STATS ROW ── */
+        .stats-band {
+            background: var(--bg-panel);
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .stats-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .stat-item {
+            padding: 1.8rem 1rem;
+            text-align: center;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .stat-item:last-child {
+            border-right: none;
+        }
+
+        .stat-num {
+            font-family: var(--font-display);
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: var(--accent-gold);
+            line-height: 1;
+        }
+
+        .stat-lbl {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-top: 0.35rem;
+        }
+
+        /* ── CONTENT SECTIONS ── */
+        .about-wrap {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 1.5rem 5rem;
+        }
+
+        /* Mission */
+        .mission-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            padding: 4rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .mission-text h2 {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .mission-text p {
+            color: var(--text-muted);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .mission-text p strong {
+            color: var(--text-light);
+        }
+
+        .mission-visual {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .mv-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .mv-card:hover {
+            border-color: rgba(192, 160, 98, 0.4);
+            transform: translateY(-3px);
+        }
+
+        .mv-icon {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .mv-label {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        .mv-value {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+
+        /* Tech Stack */
+        .tech-section {
+            padding: 3.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .section-sub {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        .tech-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .tech-card:hover {
+            border-color: rgba(192, 160, 98, 0.35);
+            transform: translateY(-2px);
+        }
+
+        .tc-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .tc-name {
+            font-size: 0.88rem;
+            font-weight: 600;
+        }
+
+        .tc-desc {
+            font-size: 0.74rem;
+            color: var(--text-muted);
+            margin-top: 1px;
+        }
+
+        /* ── TEAM SECTION ── */
+        .team-section {
+            padding: 3.5rem 0;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1.25rem;
+            margin-top: 2rem;
+        }
+
+        .member-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+            position: relative;
+        }
+
+        .member-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-gold), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .member-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(192, 160, 98, 0.3);
+        }
+
+        .member-card:hover::before {
+            opacity: 1;
+        }
+
+        .member-avatar-wrap {
+            padding: 1.5rem 1.5rem 0.5rem;
+        }
+
+        .member-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            object-position: top;
+            border: 3px solid var(--border-color);
+            transition: border-color 0.3s;
+        }
+
+        .member-card:hover .member-avatar {
+            border-color: var(--accent-gold);
+        }
+
+        .member-body {
+            padding: 0 1rem 1.5rem;
+        }
+
+        .member-name {
+            font-family: var(--font-display);
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .member-role {
+            font-size: 0.78rem;
+            color: var(--accent-gold);
+            font-weight: 500;
+            margin-bottom: 0.6rem;
+        }
+
+        .member-desc {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .member-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            justify-content: center;
+            margin-top: 0.75rem;
+        }
+
+        .skill-tag {
+            background: rgba(192, 160, 98, 0.1);
+            border: 1px solid rgba(192, 160, 98, 0.2);
+            color: var(--accent-gold);
+            font-size: 0.68rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        /* ── TIMELINE ── */
+        .timeline-section {
+            padding: 3.5rem 0;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 8px;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, var(--accent-gold), transparent);
+        }
+
+        .tl-item {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .tl-dot {
+            position: absolute;
+            left: -2rem;
+            top: 4px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--accent-gold);
+            border: 2px solid var(--bg-dark);
+            box-shadow: 0 0 0 3px rgba(192, 160, 98, 0.3);
+        }
+
+        .tl-date {
+            font-size: 0.75rem;
+            color: var(--accent-gold);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .tl-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+        }
+
+        .tl-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        @media (max-width: 900px) {
+            .mission-section {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .team-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .stats-inner {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .tech-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .team-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .about-hero h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    {% include '_header.html' %}
+
+    <!-- HERO -->
+    <div class="about-hero">
+        <div class="hero-bg"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="hero-badge">🎓 Nhóm 1 · Phát triển Hệ thống Thông minh · Kì 2 Năm 4</div>
+            <h1>Về Prophet Estate</h1>
+            <p>Chúng tôi sử dụng trí tuệ nhân tạo để xây dựng nền tảng định giá bất động sản thông minh đầu tiên cho thị
+                trường Hà Nội.</p>
+        </div>
+    </div>
+
+    <!-- STATS BAND -->
+    <div class="stats-band">
+        <div class="stats-inner">
+            <div class="stat-item">
+                <div class="stat-num">2,582</div>
+                <div class="stat-lbl">Bất động sản trong dataset</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num">13</div>
+                <div class="stat-lbl">Quận/Huyện được phân tích</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num">5</div>
+                <div class="stat-lbl">Thành viên nhóm</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num">AI</div>
+                <div class="stat-lbl">Powered by Machine Learning</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="about-wrap">
+
+        <!-- MISSION -->
+        <div class="mission-section">
+            <div class="mission-text">
+                <h2>Sứ mệnh của chúng tôi</h2>
+                <p>Prophet Estate được xây dựng với một mục tiêu rõ ràng: <strong>minh bạch hóa thị trường bất động sản
+                        Việt Nam</strong> thông qua sức mạnh của Machine Learning và dữ liệu thực tế.</p>
+                <p>Chúng tôi tin rằng mọi người đều xứng đáng được tiếp cận thông tin định giá chính xác — không bị ảnh
+                    hưởng bởi cảm tính hay thiếu minh bạch từ thị trường truyền thống.</p>
+                <p>Dự án được thực hiện như một bài tập lớn môn <strong>Phát triển Hệ thống Thông minh</strong>, với dữ
+                    liệu thu thập thực tế từ batdongsan.com.vn và mô hình ML được huấn luyện cẩn thận.</p>
+            </div>
+            <div class="mission-visual">
+                <div class="mv-card">
+                    <span class="mv-icon">🏢</span>
+                    <div class="mv-value">1,031</div>
+                    <div class="mv-label">Chung cư</div>
+                </div>
+                <div class="mv-card">
+                    <span class="mv-icon">🏠</span>
+                    <div class="mv-value">1,551</div>
+                    <div class="mv-label">Nhà đất</div>
+                </div>
+                <div class="mv-card">
+                    <span class="mv-icon">💰</span>
+                    <div class="mv-value">7.3 tỷ</div>
+                    <div class="mv-label">Median CC</div>
+                </div>
+                <div class="mv-card">
+                    <span class="mv-icon">📊</span>
+                    <div class="mv-value">ML</div>
+                    <div class="mv-label">Pipeline tự động</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TECH STACK -->
+        <div class="tech-section">
+            <h2 class="section-title">⚙️ Công nghệ sử dụng</h2>
+            <p class="section-sub">Stack kỹ thuật từ thu thập dữ liệu đến giao diện người dùng</p>
+            <div class="tech-grid">
+                <div class="tech-card"><span class="tc-icon">🐍</span>
+                    <div>
+                        <div class="tc-name">Python 3.13</div>
+                        <div class="tc-desc">Backend & ML core</div>
+                    </div>
+                </div>
+                <div class="tech-card"><span class="tc-icon">🤖</span>
+                    <div>
+                        <div class="tc-name">Scikit-learn</div>
+                        <div class="tc-desc">Random Forest, Pipeline</div>
+                    </div>
+                </div>
+                <div class="tech-card"><span class="tc-icon">🌐</span>
+                    <div>
+                        <div class="tc-name">Flask</div>
+                        <div class="tc-desc">Web framework & API</div>
+                    </div>
+                </div>
+                <div class="tech-card"><span class="tc-icon">🐼</span>
+                    <div>
+                        <div class="tc-name">Pandas</div>
+                        <div class="tc-desc">Xử lý & phân tích data</div>
+                    </div>
+                </div>
+                <div class="tech-card"><span class="tc-icon">📊</span>
+                    <div>
+                        <div class="tc-name">Chart.js</div>
+                        <div class="tc-desc">Biểu đồ tương tác</div>
+                    </div>
+                </div>
+                <div class="tech-card"><span class="tc-icon">🕷</span>
+                    <div>
+                        <div class="tc-name">BeautifulSoup</div>
+                        <div class="tc-desc">Web scraping</div>
+                    </div>
+                </div>
+                <div class="tech-card"><span class="tc-icon">🎨</span>
+                    <div>
+                        <div class="tc-name">Vanilla CSS</div>
+                        <div class="tc-desc">Custom design system</div>
+                    </div>
+                </div>
+                <div class="tech-card"><span class="tc-icon">⚡</span>
+                    <div>
+                        <div class="tc-name">JavaScript ES6</div>
+                        <div class="tc-desc">Interactive frontend</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TEAM -->
+        <div class="team-section">
+            <h2 class="section-title">👥 Đội ngũ phát triển</h2>
+            <p class="section-sub">Nhóm 1 — Môn Phát triển Hệ thống Thông minh · Kì 2 Năm 4</p>
+            <div class="team-grid">
+
+                <div class="member-card">
+                    <div class="member-avatar-wrap">
+                        <img class="member-avatar" src="{{ url_for('static', filename='avatar_tai.png') }}" alt="Tài">
+                    </div>
+                    <div class="member-body">
+                        <div class="member-name">Tài</div>
+                        <div class="member-role">🔧 Team Leader & Backend</div>
+                        <div class="member-desc">Thiết kế kiến trúc hệ thống, phát triển Flask API và tổ chức dự án.
+                        </div>
+                        <div class="member-skills">
+                            <span class="skill-tag">Flask</span>
+                            <span class="skill-tag">Python</span>
+                            <span class="skill-tag">API</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="member-card">
+                    <div class="member-avatar-wrap">
+                        <img class="member-avatar" src="{{ url_for('static', filename='avatar_maianh.png') }}"
+                            alt="Mai Anh">
+                    </div>
+                    <div class="member-body">
+                        <div class="member-name">Mai Anh</div>
+                        <div class="member-role">🎨 Frontend & UI/UX</div>
+                        <div class="member-desc">Thiết kế giao diện người dùng, xây dựng các trang web và trải nghiệm
+                            trực quan.</div>
+                        <div class="member-skills">
+                            <span class="skill-tag">HTML/CSS</span>
+                            <span class="skill-tag">UI Design</span>
+                            <span class="skill-tag">JS</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="member-card">
+                    <div class="member-avatar-wrap">
+                        <img class="member-avatar" src="{{ url_for('static', filename='avatar_thai.png') }}" alt="Thái">
+                    </div>
+                    <div class="member-body">
+                        <div class="member-name">Thái</div>
+                        <div class="member-role">🤖 ML Engineer</div>
+                        <div class="member-desc">Xây dựng và tối ưu mô hình Machine Learning, pipeline xử lý dữ liệu tự
+                            động.</div>
+                        <div class="member-skills">
+                            <span class="skill-tag">Scikit-learn</span>
+                            <span class="skill-tag">ML</span>
+                            <span class="skill-tag">Pandas</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="member-card">
+                    <div class="member-avatar-wrap">
+                        <img class="member-avatar" src="{{ url_for('static', filename='avatar_duc.png') }}" alt="Đức">
+                    </div>
+                    <div class="member-body">
+                        <div class="member-name">Đức</div>
+                        <div class="member-role">📊 Data Engineer</div>
+                        <div class="member-desc">Thu thập, làm sạch và phân tích hơn 2.500 bất động sản từ
+                            batdongsan.com.vn.</div>
+                        <div class="member-skills">
+                            <span class="skill-tag">Scraping</span>
+                            <span class="skill-tag">Pandas</span>
+                            <span class="skill-tag">EDA</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="member-card">
+                    <div class="member-avatar-wrap">
+                        <img class="member-avatar" src="{{ url_for('static', filename='avatar_dong.png') }}" alt="Đông">
+                    </div>
+                    <div class="member-body">
+                        <div class="member-name">Đông</div>
+                        <div class="member-role">📈 Analytics & Chart</div>
+                        <div class="member-desc">Phát triển trang phân tích dữ liệu, biểu đồ tương tác và báo cáo thị
+                            trường.</div>
+                        <div class="member-skills">
+                            <span class="skill-tag">Chart.js</span>
+                            <span class="skill-tag">Analytics</span>
+                            <span class="skill-tag">Viz</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- TIMELINE -->
+        <div class="timeline-section">
+            <h2 class="section-title">🗓 Hành trình dự án</h2>
+            <p class="section-sub" style="margin-bottom:2rem">Từ ý tưởng đến sản phẩm hoàn chỉnh</p>
+            <div class="timeline">
+                <div class="tl-item">
+                    <div class="tl-dot"></div>
+                    <div class="tl-date">THÁNG 3 · 2025</div>
+                    <div class="tl-title">Khởi động & Thu thập dữ liệu</div>
+                    <div class="tl-desc">Xây dựng web scraper thu thập 2.582 bất động sản từ batdongsan.com.vn, bao gồm
+                        hình ảnh, mô tả, giá và các đặc điểm chi tiết.</div>
+                </div>
+                <div class="tl-item">
+                    <div class="tl-dot"></div>
+                    <div class="tl-date">THÁNG 3–4 · 2025</div>
+                    <div class="tl-title">Xây dựng ML Pipeline</div>
+                    <div class="tl-desc">Phân tích, làm sạch dữ liệu, Feature Engineering và huấn luyện 2 mô hình Random
+                        Forest riêng biệt cho Chung Cư và Nhà Đất.</div>
+                </div>
+                <div class="tl-item">
+                    <div class="tl-dot"></div>
+                    <div class="tl-date">THÁNG 4 · 2025</div>
+                    <div class="tl-title">Phát triển Web App</div>
+                    <div class="tl-desc">Xây dựng Flask API, thiết kế giao diện người dùng với tông màu sang trọng, tích
+                        hợp hệ thống xác thực và trang chi tiết BĐS.</div>
+                </div>
+                <div class="tl-item">
+                    <div class="tl-dot"></div>
+                    <div class="tl-date">THÁNG 4 · 2025</div>
+                    <div class="tl-title">Hoàn thiện & Demo</div>
+                    <div class="tl-desc">Thêm trang Phân tích dữ liệu với Chart.js, trang Tìm kiếm BĐS thời gian thực,
+                        và chuẩn bị demo cuối kì.</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    {% include '_footer.html' %}
+
+    <script>
+        document.addEventListener('click', e => {
+            const link = e.target.closest('a[href]');
+            if (link && link.href && !link.href.startsWith('#') && link.target !== '_blank') {
+                e.preventDefault();
+                document.body.style.transition = 'opacity 0.25s';
+                document.body.style.opacity = '0';
+                setTimeout(() => location.href = link.href, 250);
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ prop.title[:60] }} | Prophet Estate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-dark);
+            color: var(--text-light);
+        }
+
+        /* ── TOP NAV ── */
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.9rem 2rem;
+            gap: 1rem;
+        }
+        .nav-brand {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            color: var(--accent-gold);
+            text-decoration: none;
+        }
+        .nav-right { display: flex; align-items: center; gap: 0.8rem; }
+        .nav-btn {
+            font-family: var(--font-body);
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 8px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            background: transparent;
+            color: var(--text-light);
+            transition: all 0.2s;
+        }
+        .nav-btn.primary {
+            background: var(--text-light);
+            color: var(--bg-panel);
+            border-color: var(--text-light);
+        }
+        .nav-btn:hover { opacity: 0.85; }
+        .nav-user { font-size: 0.9rem; color: var(--text-muted); }
+        .nav-back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: color 0.2s;
+        }
+        .nav-back-link:hover { color: var(--text-light); }
+
+        /* ── PAGE LAYOUT ── */
+        .detail-page { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+        /* ── IMAGE GALLERY ── */
+        .gallery-wrap { border-radius: 12px; overflow: hidden; margin-bottom: 1.5rem; background: #000; }
+
+        .gallery-main { position: relative; aspect-ratio: 16/9; max-height: 520px; overflow: hidden; background: #111; }
+        .gallery-main img {
+            width: 100%; height: 100%; object-fit: cover;
+            display: none; transition: opacity 0.3s;
+        }
+        .gallery-main img.active { display: block; }
+
+        .gallery-arrow {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            background: rgba(0,0,0,0.45); color: #fff; border: none;
+            width: 42px; height: 42px; border-radius: 50%; cursor: pointer;
+            font-size: 1.1rem; display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(4px); transition: background 0.2s; z-index: 5;
+        }
+        .gallery-arrow:hover { background: rgba(0,0,0,0.7); }
+        .gallery-arrow.prev { left: 1rem; }
+        .gallery-arrow.next { right: 1rem; }
+
+        .gallery-counter {
+            position: absolute; bottom: 1rem; right: 1rem;
+            background: rgba(0,0,0,0.55); color: #fff; font-size: 0.8rem;
+            padding: 4px 12px; border-radius: 20px; backdrop-filter: blur(4px);
+        }
+
+        .gallery-thumbs {
+            display: flex; gap: 6px; padding: 8px; background: #1a1a1a; overflow-x: auto;
+        }
+        .gallery-thumbs img {
+            width: 80px; height: 58px; object-fit: cover; border-radius: 5px;
+            cursor: pointer; opacity: 0.6; transition: opacity 0.2s; flex-shrink: 0;
+            border: 2px solid transparent;
+        }
+        .gallery-thumbs img.active { opacity: 1; border-color: var(--accent-gold); }
+        .gallery-thumbs img:hover { opacity: 0.9; }
+
+        /* ── CONTENT GRID ── */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        /* ── LEFT COLUMN ── */
+        .prop-title {
+            font-family: var(--font-display);
+            font-size: 1.9rem;
+            font-weight: 600;
+            line-height: 1.3;
+            margin-bottom: 1rem;
+            color: var(--text-light);
+        }
+
+        .prop-price-row {
+            display: flex; align-items: baseline; gap: 1.5rem;
+            padding: 1rem 0; border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color); margin-bottom: 1.5rem;
+        }
+        .prop-price {
+            font-family: var(--font-display);
+            font-size: 2rem; font-weight: 600;
+            color: var(--accent-gold);
+        }
+        .prop-area-info { color: var(--text-muted); font-size: 0.95rem; }
+        .prop-area-info strong { color: var(--text-light); font-weight: 600; }
+
+        /* Specs table */
+        .specs-section { margin-bottom: 2rem; }
+        .specs-section h3 {
+            font-family: var(--font-display);
+            font-size: 1.3rem; margin-bottom: 1rem; color: var(--text-light);
+        }
+        .specs-table { width: 100%; border-collapse: collapse; }
+        .specs-table tr { border-bottom: 1px solid var(--border-color); }
+        .specs-table td { padding: 0.75rem 0.5rem; font-size: 0.95rem; }
+        .specs-table td:first-child { color: var(--text-muted); width: 50%; }
+        .specs-table td:last-child { font-weight: 500; color: var(--text-light); }
+
+        /* Description */
+        .desc-section { margin-bottom: 2rem; }
+        .desc-section h3 {
+            font-family: var(--font-display);
+            font-size: 1.3rem; margin-bottom: 1rem; color: var(--text-light);
+        }
+        .desc-text {
+            white-space: pre-line; line-height: 1.9;
+            color: var(--text-muted); font-size: 0.95rem;
+        }
+
+        /* ── RIGHT COLUMN / SIDEBAR ── */
+        .sidebar {
+            position: sticky;
+            top: 72px;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .sidebar-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .sidebar-price {
+            font-family: var(--font-display);
+            font-size: 1.8rem; font-weight: 600;
+            color: var(--accent-gold);
+            margin-bottom: 0.25rem;
+        }
+        .sidebar-area { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.25rem; }
+
+        /* Phone reveal */
+        .phone-row {
+            display: flex; align-items: center; gap: 0.6rem;
+            margin-bottom: 0.75rem;
+        }
+        .phone-number {
+            font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;
+        }
+        .phone-reveal-btn {
+            background: #1a9c6e; color: #fff; border: none;
+            padding: 5px 14px; border-radius: 6px; font-size: 0.8rem;
+            cursor: pointer; transition: background 0.2s; font-family: var(--font-body);
+            white-space: nowrap;
+        }
+        .phone-reveal-btn:hover { background: #157a56; }
+        .phone-row {
+            flex-wrap: wrap;
+            gap: 0.5rem 0.8rem;
+        }
+        .phone-login-inline {
+            font-size: 0.78rem;
+            color: var(--accent-gold);
+            cursor: pointer;
+            text-decoration: none;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            border: 1px solid var(--accent-gold);
+            padding: 3px 10px;
+            border-radius: 20px;
+            transition: all 0.2s;
+        }
+        .phone-login-inline:hover {
+            background: var(--accent-gold);
+            color: #fff;
+        }
+
+        .contact-btn {
+            display: block; width: 100%;
+            background: var(--text-light); color: var(--bg-panel);
+            border: none; padding: 13px; border-radius: 8px;
+            font-family: var(--font-body); font-size: 0.95rem; font-weight: 600;
+            text-align: center; cursor: pointer; text-decoration: none;
+            transition: background 0.2s;
+        }
+        .contact-btn:hover { background: var(--accent-gold); }
+
+        /* ── AUTH MODAL ── */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.6); z-index: 9998;
+            justify-content: center; align-items: center;
+            backdrop-filter: blur(3px);
+        }
+        .modal-overlay.active { display: flex; }
+
+        .modal-box {
+            background: var(--bg-panel); border-radius: 14px;
+            padding: 2.5rem 2rem; width: 420px; max-width: 95vw;
+            position: relative; animation: fadeInModal 0.25s ease;
+        }
+        @keyframes fadeInModal {
+            from { opacity: 0; transform: translateY(-20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .modal-close {
+            position: absolute; top: 1rem; right: 1rem;
+            background: none; border: none; font-size: 1.4rem;
+            cursor: pointer; color: var(--text-muted); line-height: 1;
+        }
+        .modal-title {
+            font-family: var(--font-display); font-size: 1.6rem;
+            margin-bottom: 1.5rem; color: var(--text-light);
+        }
+        .modal-input {
+            width: 100%; border: 1px solid var(--border-color);
+            border-radius: 8px; padding: 10px 14px; margin-bottom: 0.8rem;
+            font-family: var(--font-body); font-size: 0.95rem;
+            color: var(--text-light); background: var(--bg-dark); outline: none;
+            transition: border-color 0.2s;
+        }
+        .modal-input:focus { border-color: var(--accent-gold); }
+        .modal-submit {
+            width: 100%; background: var(--text-light); color: var(--bg-panel);
+            border: none; padding: 13px; border-radius: 8px; font-size: 1rem;
+            font-weight: 600; font-family: var(--font-body); cursor: pointer;
+            margin-top: 0.4rem; transition: background 0.2s;
+        }
+        .modal-submit:hover { background: var(--accent-gold); }
+        .modal-switch {
+            text-align: center; margin-top: 1rem; font-size: 0.88rem;
+            color: var(--text-muted);
+        }
+        .modal-switch a { color: var(--accent-gold); cursor: pointer; }
+        .modal-error {
+            color: #e63946; font-size: 0.84rem; margin-bottom: 0.6rem;
+            min-height: 18px;
+        }
+
+        @media (max-width: 800px) {
+            .content-grid { grid-template-columns: 1fr; }
+            .sidebar { position: static; }
+            .prop-title { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body class="fade-in">
+
+{% include '_header.html' %}
+
+<!-- MAIN -->
+<div class="detail-page">
+
+    <!-- IMAGE GALLERY -->
+    {% if prop.all_images and prop.all_images | length > 0 %}
+    <div class="gallery-wrap">
+        <div class="gallery-main" id="gallery-main">
+            {% for img in prop.all_images %}
+            <img src="{{ img }}" alt="Ảnh {{ loop.index }}" class="{{ 'active' if loop.first else '' }}" loading="{{ 'eager' if loop.first else 'lazy' }}">
+            {% endfor %}
+            <button class="gallery-arrow prev" onclick="galleryNav(-1)" {% if prop.all_images | length <= 1 %}style="display:none"{% endif %}>&#8249;</button>
+            <button class="gallery-arrow next" onclick="galleryNav(1)"  {% if prop.all_images | length <= 1 %}style="display:none"{% endif %}>&#8250;</button>
+            <span class="gallery-counter" id="gallery-counter">1 / {{ prop.all_images | length }}</span>
+        </div>
+        {% if prop.all_images | length > 1 %}
+        <div class="gallery-thumbs" id="gallery-thumbs">
+            {% for img in prop.all_images %}
+            <img src="{{ img }}" alt="Thumb {{ loop.index }}" class="{{ 'active' if loop.first else '' }}" onclick="galleryGoto({{ loop.index0 }})" loading="lazy">
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- CONTENT GRID -->
+    <div class="content-grid">
+
+        <!-- LEFT -->
+        <div>
+            <h1 class="prop-title">{{ prop.title }}</h1>
+
+            <div class="prop-price-row">
+                <span class="prop-price">{{ prop.price_billion | round(2) }} Tỷ VNĐ</span>
+                <div class="prop-area-info">
+                    Diện tích: <strong>{{ prop.area_m2 }} m²</strong>
+                    {% if prop.type == 'nha_dat' and prop.floors_num %} &nbsp;·&nbsp; <strong>{{ prop.floors_num | int }} tầng</strong>{% endif %}
+                </div>
+            </div>
+
+            <!-- Specs -->
+            <div class="specs-section">
+                <h3>Đặc điểm bất động sản</h3>
+                <table class="specs-table">
+                    <tr><td>📐 Diện tích</td><td>{{ prop.area_m2 }} m²</td></tr>
+                    <tr><td>🛏 Số phòng ngủ</td><td>{{ prop.bedrooms_num | int }}</td></tr>
+                    <tr><td>🧭 Hướng nhà</td><td>{{ prop.direction }}</td></tr>
+                    {% if prop.type == 'chung_cu' %}
+                    <tr><td>🏠 Hướng ban công</td><td>{{ prop.balcony_direction }}</td></tr>
+                    {% endif %}
+                    {% if prop.type == 'nha_dat' %}
+                    <tr><td>🏢 Số tầng</td><td>{{ prop.floors_num | int }}</td></tr>
+                    <tr><td>📏 Mặt tiền</td><td>{{ prop.frontage_m }} m</td></tr>
+                    <tr><td>🛣 Đường vào</td><td>{{ prop.road_width_m }} m</td></tr>
+                    {% endif %}
+                    <tr><td>🛋 Nội thất</td><td>{{ prop.furniture_std }}</td></tr>
+                    <tr><td>📜 Pháp lý</td><td>{{ prop.legal_std }}</td></tr>
+                    <tr><td>📍 Khu vực</td><td>{{ prop.district }}</td></tr>
+                </table>
+            </div>
+
+            <!-- Description -->
+            <div class="desc-section">
+                <h3>Thông tin mô tả</h3>
+                <p class="desc-text">{{ prop.description }}</p>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-card">
+                <div class="sidebar-price">{{ prop.price_billion | round(2) }} Tỷ VNĐ</div>
+                <div class="sidebar-area">{{ prop.area_m2 }} m² · {{ prop.district }}</div>
+
+                <!-- Phone number -->
+                <div class="phone-row">
+                    <span class="phone-number" id="phone-display">{{ prop.phone_masked }}</span>
+                    {% if logged_in %}
+                        <button class="phone-reveal-btn" onclick="revealPhone()">Hiện số</button>
+                    {% else %}
+                        <a class="phone-login-inline" onclick="openAuthModal('login')">🔒 Đăng nhập để hiển thị đầy đủ</a>
+                    {% endif %}
+                </div>
+
+                <a href="#" class="contact-btn" onclick="handleContact(event)">📞 Liên hệ ngay</a>
+            </div>
+
+            <div class="sidebar-card" style="font-size:0.9rem; color:var(--text-muted); line-height:1.7;">
+                <p>✅ <strong style="color:var(--text-light)">Dữ liệu từ batdongsan.com.vn</strong></p>
+                <p style="margin-top:0.4rem">Giá được định giá bởi AI Prophet Estate dựa trên thị trường thực tế.</p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% include '_footer.html' %}
+
+<script>
+// ── GALLERY ──
+let galleryIdx = 0;
+const galleryImgs   = document.querySelectorAll('#gallery-main img');
+const galleryThumbs = document.querySelectorAll('#gallery-thumbs img');
+const galleryCount  = document.getElementById('gallery-counter');
+
+function galleryGoto(idx) {
+    galleryImgs.forEach(i => i.classList.remove('active'));
+    galleryThumbs.forEach(i => i.classList.remove('active'));
+    galleryIdx = (idx + galleryImgs.length) % galleryImgs.length;
+    galleryImgs[galleryIdx].classList.add('active');
+    if (galleryThumbs[galleryIdx]) galleryThumbs[galleryIdx].classList.add('active');
+    if (galleryCount) galleryCount.textContent = `${galleryIdx + 1} / ${galleryImgs.length}`;
+}
+function galleryNav(dir) { galleryGoto(galleryIdx + dir); }
+
+// ── PHONE REVEAL ──
+const PHONE_FULL = "{{ prop.phone_full }}";
+function revealPhone() {
+    document.getElementById('phone-display').textContent = PHONE_FULL;
+    event.target.remove();
+}
+
+// ── CONTACT ──
+function handleContact(e) {
+    e.preventDefault();
+    {% if logged_in %}
+        alert('Số điện thoại: ' + PHONE_FULL);
+    {% else %}
+        openAuthModal('login');
+    {% endif %}
+}
+
+// Smooth page transition
+document.addEventListener('click', e => {
+    const link = e.target.closest('a[href]');
+    if (link && link.href && !link.href.startsWith('#') && link.target !== '_blank' && !link.href.startsWith('javascript:')) {
+        e.preventDefault();
+        document.body.style.transition = 'opacity 0.25s';
+        document.body.style.opacity = '0';
+        setTimeout(() => location.href = link.href, 250);
+    }
+});
+</script>
+</body>
+</html>

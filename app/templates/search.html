@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tìm Kiếm BĐS | Prophet Estate</title>
+    <meta name="description" content="Tìm kiếm bất động sản Hà Nội — lọc theo quận, giá, loại hình và diện tích.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        body { font-family: var(--font-body); background: var(--bg-dark); color: var(--text-light); margin: 0; }
+
+        /* ── SEARCH HERO ── */
+        .search-hero {
+            position: relative; overflow: hidden;
+            background: linear-gradient(135deg, #090909 0%, #14102a 60%, #0d1a14 100%);
+            border-bottom: 1px solid var(--border-color);
+            padding: 3.5rem 2rem 2.5rem; text-align: center;
+        }
+        .search-hero::before {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(192,160,98,0.09) 0%, transparent 70%);
+        }
+        .sh-inner { position: relative; z-index: 1; }
+        .search-hero h1 {
+            font-family: var(--font-display); font-size: 2.4rem;
+            background: linear-gradient(135deg, #fff 30%, var(--accent-gold));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Search bar */
+        .search-bar-wrap { max-width: 680px; margin: 0 auto; }
+        .search-bar {
+            display: flex; background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 12px; overflow: hidden;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .search-bar:focus-within { border-color: var(--accent-gold); box-shadow: 0 0 0 3px rgba(192,160,98,0.15); }
+        .search-bar input {
+            flex: 1; border: none; background: transparent;
+            padding: 14px 18px; color: var(--text-light);
+            font-family: var(--font-body); font-size: 0.95rem; outline: none;
+        }
+        .search-bar input::placeholder { color: var(--text-muted); }
+        .search-bar button {
+            background: var(--accent-gold); color: #fff; border: none;
+            padding: 14px 24px; cursor: pointer; font-size: 1rem;
+            transition: opacity 0.2s; font-family: var(--font-body);
+        }
+        .search-bar button:hover { opacity: 0.85; }
+
+        /* Quick filters under search */
+        .quick-filters { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; margin-top: 1rem; }
+        .qf {
+            border: 1px solid var(--border-color); background: rgba(255,255,255,0.04);
+            color: var(--text-muted); padding: 5px 14px; border-radius: 20px;
+            cursor: pointer; font-size: 0.82rem; font-family: var(--font-body);
+            transition: all 0.2s;
+        }
+        .qf.active, .qf:hover { background: var(--accent-gold); color: #fff; border-color: var(--accent-gold); }
+
+        /* ── MAIN LAYOUT ── */
+        .search-layout { display: grid; grid-template-columns: 260px 1fr; gap: 1.5rem; max-width: 1160px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
+
+        /* Sidebar filters */
+        .filter-panel { display: flex; flex-direction: column; gap: 1rem; }
+        .filter-box {
+            background: var(--bg-panel); border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 1.25rem;
+        }
+        .filter-box h4 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 0.9rem; font-weight: 600; }
+        .filter-box select, .filter-box input[type="number"] {
+            width: 100%; border: 1px solid var(--border-color); background: var(--bg-dark);
+            color: var(--text-light); border-radius: 7px; padding: 8px 10px;
+            font-family: var(--font-body); font-size: 0.88rem; outline: none;
+            transition: border-color 0.2s;
+        }
+        .filter-box select:focus, .filter-box input:focus { border-color: var(--accent-gold); }
+        .price-range { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; align-items: center; }
+        .price-range span { text-align: center; color: var(--text-muted); font-size: 0.8rem; }
+        .apply-btn {
+            width: 100%; background: var(--accent-gold); color: #fff; border: none;
+            padding: 10px; border-radius: 8px; cursor: pointer;
+            font-family: var(--font-body); font-size: 0.9rem; font-weight: 600;
+            transition: opacity 0.2s; margin-top: 0.5rem;
+        }
+        .apply-btn:hover { opacity: 0.85; }
+        .reset-btn {
+            width: 100%; background: transparent; color: var(--text-muted);
+            border: 1px solid var(--border-color); padding: 8px; border-radius: 8px;
+            cursor: pointer; font-family: var(--font-body); font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .reset-btn:hover { border-color: var(--accent-gold); color: var(--accent-gold); }
+
+        /* Results area */
+        .results-area { }
+        .results-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;
+        }
+        .results-count { font-size: 0.9rem; color: var(--text-muted); }
+        .results-count strong { color: var(--text-light); }
+        .sort-select {
+            border: 1px solid var(--border-color); background: var(--bg-panel);
+            color: var(--text-light); padding: 6px 12px; border-radius: 7px;
+            font-family: var(--font-body); font-size: 0.85rem; outline: none; cursor: pointer;
+        }
+
+        /* Property cards grid */
+        .prop-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+
+        .prop-card {
+            background: var(--bg-panel); border: 1px solid var(--border-color);
+            border-radius: 12px; overflow: hidden; cursor: pointer;
+            transition: transform 0.25s, box-shadow 0.25s;
+        }
+        .prop-card:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(0,0,0,0.25); }
+        .pc-img {
+            height: 170px; overflow: hidden; background: linear-gradient(135deg, #1a1a2e, #0d2d1a);
+            display: flex; align-items: center; justify-content: center; position: relative;
+        }
+        .pc-img img { width: 100%; height: 100%; object-fit: cover; }
+        .pc-img-placeholder { font-size: 2.5rem; }
+        .pc-img-fallback {
+            width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 3rem; color: rgba(255,255,255,0.15);
+        }
+        .pc-type-badge {
+            position: absolute; top: 10px; left: 10px;
+            background: rgba(0,0,0,0.65); backdrop-filter: blur(4px);
+            color: #fff; font-size: 0.7rem; padding: 3px 9px; border-radius: 4px; font-weight: 600;
+        }
+        .pc-body { padding: 1rem; }
+        .pc-title {
+            font-size: 0.88rem; font-weight: 600; line-height: 1.35;
+            margin-bottom: 0.5rem; display: -webkit-box;
+            -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .pc-price { font-family: var(--font-display); font-size: 1.25rem; color: var(--accent-gold); font-weight: 600; margin-bottom: 0.5rem; }
+        .pc-meta { display: flex; gap: 0.75rem; flex-wrap: wrap; font-size: 0.76rem; color: var(--text-muted); }
+        .pc-meta span { display: flex; align-items: center; gap: 3px; }
+        .pc-footer {
+            display: flex; justify-content: space-between; align-items: center;
+            border-top: 1px solid var(--border-color); padding: 0.7rem 1rem;
+            font-size: 0.75rem; color: var(--text-muted);
+        }
+        .pc-footer .tag { background: var(--bg-dark); border-radius: 4px; padding: 2px 7px; }
+
+        /* Empty / loading states */
+        .state-box { text-align: center; padding: 4rem 2rem; color: var(--text-muted); }
+        .state-box .s-icon { font-size: 3.5rem; margin-bottom: 1rem; display: block; }
+        .state-box h3 { font-family: var(--font-display); font-size: 1.4rem; color: var(--text-light); margin-bottom: 0.5rem; }
+        .spinner { width: 40px; height: 40px; border: 3px solid var(--border-color); border-top-color: var(--accent-gold); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Pagination */
+        .pagination { display: flex; justify-content: center; gap: 0.5rem; margin-top: 2rem; flex-wrap: wrap; }
+        .pg-btn {
+            border: 1px solid var(--border-color); background: var(--bg-panel);
+            color: var(--text-muted); padding: 7px 13px; border-radius: 7px;
+            cursor: pointer; font-family: var(--font-body); font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .pg-btn:hover, .pg-btn.active { background: var(--accent-gold); color: #fff; border-color: var(--accent-gold); }
+        .pg-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        @media (max-width: 900px) {
+            .search-layout { grid-template-columns: 1fr; }
+            .filter-panel { flex-direction: row; flex-wrap: wrap; }
+            .filter-box { flex: 1 1 200px; }
+            .prop-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 580px) {
+            .prop-grid { grid-template-columns: 1fr; }
+            .search-hero h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+{% include '_header.html' %}
+
+<!-- SEARCH HERO -->
+<div class="search-hero">
+    <div class="sh-inner">
+        <h1>🔍 Tìm Kiếm Bất Động Sản</h1>
+        <div class="search-bar-wrap">
+            <div class="search-bar">
+                <input type="text" id="q-input" placeholder="Tìm theo quận, phường, tên dự án..." autocomplete="off">
+                <button onclick="doSearch(1)">🔍 Tìm kiếm</button>
+            </div>
+            <div class="quick-filters">
+                <button class="qf active" onclick="setDistrict(this,'')">Tất cả</button>
+                <button class="qf" onclick="setDistrict(this,'Cầu Giấy')">Cầu Giấy</button>
+                <button class="qf" onclick="setDistrict(this,'Nam Từ Liêm')">Nam Từ Liêm</button>
+                <button class="qf" onclick="setDistrict(this,'Đống Đa')">Đống Đa</button>
+                <button class="qf" onclick="setDistrict(this,'Tây Hồ')">Tây Hồ</button>
+                <button class="qf" onclick="setDistrict(this,'Thanh Xuân')">Thanh Xuân</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="search-layout">
+
+    <!-- FILTER SIDEBAR -->
+    <aside class="filter-panel">
+        <div class="filter-box">
+            <h4>Loại hình</h4>
+            <select id="f-type">
+                <option value="all">Tất cả</option>
+                <option value="chung_cu">🏢 Chung cư</option>
+                <option value="nha_dat">🏠 Nhà đất / Phố</option>
+            </select>
+        </div>
+        <div class="filter-box">
+            <h4>Khoảng giá (tỷ VNĐ)</h4>
+            <div class="price-range">
+                <input type="number" id="f-pmin" placeholder="Từ" min="0" step="0.5">
+                <span>—</span>
+                <input type="number" id="f-pmax" placeholder="Đến" min="0" step="0.5">
+            </div>
+        </div>
+        <div class="filter-box">
+            <h4>Quận/Huyện</h4>
+            <select id="f-dist">
+                <option value="">Tất cả quận</option>
+                <option>Cầu Giấy</option>
+                <option>Nam Từ Liêm</option>
+                <option>Đống Đa</option>
+                <option>Tây Hồ</option>
+                <option>Thanh Xuân</option>
+                <option>Hoàng Mai</option>
+                <option>Hà Đông</option>
+                <option>Long Biên</option>
+                <option>Gia Lâm</option>
+                <option>Bắc Từ Liêm</option>
+                <option>Hoài Đức</option>
+                <option>Hai Bà Trưng</option>
+                <option>Ba Đình</option>
+            </select>
+        </div>
+        <div class="filter-box">
+            <button class="apply-btn" onclick="doSearch(1)">✅ Áp dụng bộ lọc</button>
+            <button class="reset-btn" onclick="resetFilters()" style="margin-top:0.5rem">↺ Đặt lại</button>
+        </div>
+    </aside>
+
+    <!-- RESULTS -->
+    <div class="results-area">
+        <div class="results-header">
+            <div class="results-count" id="results-count">Nhập từ khóa hoặc chọn bộ lọc để tìm kiếm</div>
+            <select class="sort-select" id="sort-sel" onchange="doSearch(1)">
+                <option value="default">Mặc định</option>
+                <option value="price_asc">Giá tăng dần</option>
+                <option value="price_desc">Giá giảm dần</option>
+            </select>
+        </div>
+
+        <div id="results-container">
+            <div class="state-box">
+                <span class="s-icon">🏘</span>
+                <h3>Khám phá bất động sản</h3>
+                <p>Tìm theo quận, khoảng giá hoặc loại hình bất động sản bạn muốn.</p>
+            </div>
+        </div>
+
+        <div class="pagination" id="pagination"></div>
+    </div>
+</div>
+
+{% include '_footer.html' %}
+
+<script>
+let currentPage = 1;
+let activeDistrict = '';
+
+function setDistrict(btn, dist) {
+    activeDistrict = dist;
+    document.querySelectorAll('.qf').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('f-dist').value = dist;
+    doSearch(1);
+}
+
+function resetFilters() {
+    document.getElementById('q-input').value = '';
+    document.getElementById('f-type').value = 'all';
+    document.getElementById('f-pmin').value = '';
+    document.getElementById('f-pmax').value = '';
+    document.getElementById('f-dist').value = '';
+    activeDistrict = '';
+    document.querySelectorAll('.qf').forEach((b,i) => b.classList.toggle('active', i===0));
+    document.getElementById('results-container').innerHTML = `<div class="state-box"><span class="s-icon">🏘</span><h3>Khám phá bất động sản</h3><p>Nhập từ khóa hoặc chọn bộ lọc.</p></div>`;
+    document.getElementById('results-count').textContent = 'Nhập từ khóa hoặc chọn bộ lọc để tìm kiếm';
+    document.getElementById('pagination').innerHTML = '';
+}
+
+async function doSearch(page) {
+    currentPage = page;
+    const q        = document.getElementById('q-input').value.trim();
+    const type     = document.getElementById('f-type').value;
+    const pmin     = document.getElementById('f-pmin').value || 0;
+    const pmax     = document.getElementById('f-pmax').value || 9999;
+    const dist     = document.getElementById('f-dist').value;
+
+    const container = document.getElementById('results-container');
+    const countEl = document.getElementById('results-count');
+    container.innerHTML = `<div class="state-box"><div class="spinner"></div><p>Đang tìm kiếm...</p></div>`;
+    document.getElementById('pagination').innerHTML = '';
+
+    const sort = document.getElementById('sort-sel').value;
+    const params = new URLSearchParams({ q, type, price_min: pmin, price_max: pmax, district: dist, page, sort });
+    const res = await fetch(`/api/search?${params}`);
+    const data = await res.json();
+    if (!res.ok) {
+        countEl.textContent = data.error || 'Tham số tìm kiếm không hợp lệ';
+        container.innerHTML = `<div class="state-box"><span class="s-icon">⚠</span><h3>Không thể tìm kiếm</h3><p>${escapeHtml(data.error || 'Vui lòng kiểm tra lại bộ lọc.')}</p></div>`;
+        return;
+    }
+
+    if (data.total === 0) {
+        countEl.textContent = 'Không tìm thấy kết quả phù hợp';
+        container.innerHTML = `<div class="state-box"><span class="s-icon">🔎</span><h3>Không có kết quả</h3><p>Thử thay đổi từ khóa hoặc bộ lọc.</p></div>`;
+        return;
+    }
+
+    countEl.innerHTML = `Hiển thị <strong>${data.items.length}</strong> / <strong>${data.total}</strong> bất động sản`;
+    container.innerHTML = `<div class="prop-grid">${data.items.map(renderCard).join('')}</div>`;
+
+    // Pagination
+    const pgEl = document.getElementById('pagination');
+    if (data.pages > 1) {
+        let html = '';
+        if (page > 1) html += `<button class="pg-btn" onclick="doSearch(${page-1})">‹ Trước</button>`;
+        for (let p = Math.max(1, page-2); p <= Math.min(data.pages, page+2); p++) {
+            html += `<button class="pg-btn ${p===page?'active':''}" onclick="doSearch(${p})">${p}</button>`;
+        }
+        if (page < data.pages) html += `<button class="pg-btn" onclick="doSearch(${page+1})">Tiếp ›</button>`;
+        pgEl.innerHTML = html;
+    }
+}
+
+function renderCard(p) {
+    const type = p.type === 'chung_cu' ? 'chung_cu' : 'nha_dat';
+    const typeLabel = type === 'chung_cu' ? '🏢 Chung cư' : '🏠 Nhà đất';
+    const id = Number.isInteger(Number(p.id)) ? Number(p.id) : 0;
+    const title = escapeHtml(p.title || '');
+    const district = escapeHtml(p.district || '');
+    const legal = escapeHtml(p.legal || 'N/A');
+    const furniture = escapeHtml(p.furniture || '');
+    const image = safeImageUrl(p.image);
+    const area = Number.isFinite(Number(p.area)) ? Number(p.area) : 0;
+    const price = Number.isFinite(Number(p.price)) ? Number(p.price) : 0;
+    const bedrooms = Number.isFinite(Number(p.bedrooms)) ? Number(p.bedrooms) : 0;
+    const placeholders = [
+        'linear-gradient(135deg,#1a1a2e,#16213e)',
+        'linear-gradient(135deg,#0d1f0d,#1a3a1a)',
+        'linear-gradient(135deg,#1a0d1f,#2d1a3a)',
+        'linear-gradient(135deg,#1f1a0d,#3a2d1a)',
+        'linear-gradient(135deg,#0d1a1f,#1a2d3a)',
+    ];
+    const pbg = placeholders[Math.abs(id) % placeholders.length];
+    const icon = type === 'chung_cu' ? '🏢' : '🏠';
+    const imgHtml = image
+        ? `<img src="${image}" alt="${title}" loading="lazy" referrerpolicy="no-referrer"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+               style="width:100%;height:100%;object-fit:cover">
+           <div class="pc-img-fallback" style="display:none;background:${pbg}">${icon}</div>`
+        : `<div class="pc-img-fallback" style="background:${pbg}">${icon}</div>`;
+    return `
+    <div class="prop-card" onclick="location.href='/property/${type}/${id}'">
+        <div class="pc-img">
+            ${imgHtml}
+            <span class="pc-type-badge">${typeLabel}</span>
+        </div>
+        <div class="pc-body">
+            <div class="pc-price">${price} tỷ VNĐ</div>
+            <div class="pc-title">${title}</div>
+            <div class="pc-meta">
+                <span>📍 ${district}</span>
+                <span>📐 ${area} m²</span>
+                ${bedrooms ? `<span>🛏 ${bedrooms} PN</span>` : ''}
+            </div>
+        </div>
+        <div class="pc-footer">
+            <span class="tag">${legal}</span>
+            <span class="tag">${furniture}</span>
+        </div>
+    </div>`;
+}
+
+function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, ch => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    }[ch]));
+}
+
+function safeImageUrl(value) {
+    const url = String(value || '').trim();
+    return /^https?:\/\//i.test(url) ? escapeHtml(url) : '';
+}
+
+// Allow Enter key search
+document.getElementById('q-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doSearch(1);
+});
+
+// Load all on page start
+doSearch(1);
+
+document.addEventListener('click', e => {
+    const link = e.target.closest('a[href]');
+    if (link && link.href && !link.href.startsWith('#') && link.target !== '_blank') {
+        e.preventDefault();
+        document.body.style.transition = 'opacity 0.25s';
+        document.body.style.opacity = '0';
+        setTimeout(() => location.href = link.href, 250);
+    }
+});
+</script>
+</body>
+</html>
