@@ -100,7 +100,7 @@ Chay cac lenh:
 ```powershell
 python -m compileall app train_pipeline.py
 python -c "from app.app import app; c=app.test_client(); print(c.get('/').status_code); print(c.get('/about').status_code); print(c.get('/api/auth/status').json)"
-rg -n "GOCSPX|936803131168|AIza|ya29\\." -S . --glob "!README.md"
+rg -n "GOCSPX-|apps\\.googleusercontent\\.com|AIza|ya29\\." -S . --glob "!README.md"
 git status --short
 ```
 
