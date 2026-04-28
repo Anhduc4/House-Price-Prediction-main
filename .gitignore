@@ -42,3 +42,7 @@ Thumbs.db
 
 # Data (Giữ lại .csv nhỏ, bỏ qua các file log hoặc temp nếu có)
 *.log
+
+# Local secrets
+app/oauth_config.py
+.env

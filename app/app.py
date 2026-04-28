@@ -18,9 +18,20 @@ cors_origins = [origin.strip() for origin in os.environ.get('CORS_ORIGINS', '').
 if cors_origins:
     CORS(app, resources={r"/api/*": {"origins": cors_origins}})
 
-# Google OAuth: set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in your local environment.
-GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '').strip()
-GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', '').strip()
+# Google OAuth: set env vars, or create app/oauth_config.py from oauth_config.example.py.
+try:
+    from oauth_config import GOOGLE_CLIENT_ID as GOOGLE_CLIENT_ID_LOCAL
+    from oauth_config import GOOGLE_CLIENT_SECRET as GOOGLE_CLIENT_SECRET_LOCAL
+except ModuleNotFoundError:
+    try:
+        from app.oauth_config import GOOGLE_CLIENT_ID as GOOGLE_CLIENT_ID_LOCAL
+        from app.oauth_config import GOOGLE_CLIENT_SECRET as GOOGLE_CLIENT_SECRET_LOCAL
+    except ModuleNotFoundError:
+        GOOGLE_CLIENT_ID_LOCAL = ''
+        GOOGLE_CLIENT_SECRET_LOCAL = ''
+
+GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '').strip() or GOOGLE_CLIENT_ID_LOCAL.strip()
+GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', '').strip() or GOOGLE_CLIENT_SECRET_LOCAL.strip()
 
 GOOGLE_CONFIGURED = bool(GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET)
 
